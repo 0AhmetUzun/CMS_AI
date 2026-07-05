@@ -12,9 +12,9 @@ namespace ContractManagementSystem_CMS_.Extensions
         public static void ClearHighlights(this RichTextBox rtb)
         {
             int currentPos = rtb.SelectionStart;
-            string rtf = rtb.Rtf;
+            string? rtf = rtb.Rtf;
             rtb.Clear();
-            rtb.Rtf = rtf;
+            if (rtf != null) rtb.Rtf = rtf;
             rtb.SelectionStart = currentPos;
         }
 
@@ -47,13 +47,13 @@ namespace ContractManagementSystem_CMS_.Extensions
             rtb.AllowDrop = true;
             rtb.DragEnter += (sender, e) =>
             {
-                if (e.Data.GetDataPresent(DataFormats.FileDrop)) e.Effect = DragDropEffects.Copy;
+                if (e.Data?.GetDataPresent(DataFormats.FileDrop) == true) e.Effect = DragDropEffects.Copy;
                 else e.Effect = DragDropEffects.None;
             };
             rtb.DragDrop += (sender, e) =>
             {
-                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-                if (files.Length > 0 && Path.GetExtension(files[0]).ToLower() == ".docx")
+                var data = e.Data?.GetData(DataFormats.FileDrop);
+                if (data is string[] files && files.Length > 0 && Path.GetExtension(files[0]).ToLower() == ".docx")
                 {
                     try { rtb.Text = WordDocumentHelper.ReadParagraphsOnly(files[0]); }
                     catch (Exception ex) { MessageBox.Show("Hata: " + ex.Message); }

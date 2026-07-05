@@ -16,20 +16,20 @@ namespace ContractManagementSystem_CMS_.Services
 
         public class AIAnalysisResult
         {
-            public string Summary { get; set; }
+            public string Summary { get; set; } = null!;
             public double RiskScore { get; set; }
-            public string RiskLevel { get; set; }
-            public List<AIModuleDetail> Details { get; set; }
-            public List<string> Recommendations { get; set; }
-            public string RawResponse { get; set; }
+            public string RiskLevel { get; set; } = null!;
+            public List<AIModuleDetail> Details { get; set; } = null!;
+            public List<string> Recommendations { get; set; } = null!;
+            public string RawResponse { get; set; } = null!;
         }
 
         public class AIModuleDetail
         {
-            public string Title { get; set; }
-            public string Content { get; set; }
-            public string Risk { get; set; }
-            public string Explanation { get; set; }
+            public string Title { get; set; } = null!;
+            public string Content { get; set; } = null!;
+            public string Risk { get; set; } = null!;
+            public string Explanation { get; set; } = null!;
         }
 
         public AIService()
@@ -90,11 +90,11 @@ Sadece JSON döndür, başka bir şey yazma. Türkçe yanıt ver.";
                 var root = doc.RootElement;
 
                 if (root.TryGetProperty("summary", out var summary))
-                    result.Summary = summary.GetString();
+                    result.Summary = summary.GetString() ?? "";
                 if (root.TryGetProperty("riskScore", out var riskScore))
                     result.RiskScore = riskScore.GetDouble();
                 if (root.TryGetProperty("riskLevel", out var riskLevel))
-                    result.RiskLevel = riskLevel.GetString();
+                    result.RiskLevel = riskLevel.GetString() ?? "";
 
                 result.Details = new List<AIModuleDetail>();
                 if (root.TryGetProperty("details", out var details))
@@ -102,10 +102,10 @@ Sadece JSON döndür, başka bir şey yazma. Türkçe yanıt ver.";
                     foreach (var detail in details.EnumerateArray())
                     {
                         var moduleDetail = new AIModuleDetail();
-                        if (detail.TryGetProperty("title", out var title)) moduleDetail.Title = title.GetString();
-                        if (detail.TryGetProperty("content", out var content)) moduleDetail.Content = content.GetString();
-                        if (detail.TryGetProperty("risk", out var risk)) moduleDetail.Risk = risk.GetString();
-                        if (detail.TryGetProperty("explanation", out var explanation)) moduleDetail.Explanation = explanation.GetString();
+                        if (detail.TryGetProperty("title", out var title)) moduleDetail.Title = title.GetString() ?? "";
+                        if (detail.TryGetProperty("content", out var content)) moduleDetail.Content = content.GetString() ?? "";
+                        if (detail.TryGetProperty("risk", out var risk)) moduleDetail.Risk = risk.GetString() ?? "";
+                        if (detail.TryGetProperty("explanation", out var explanation)) moduleDetail.Explanation = explanation.GetString() ?? "";
                         result.Details.Add(moduleDetail);
                     }
                 }
@@ -114,7 +114,10 @@ Sadece JSON döndür, başka bir şey yazma. Türkçe yanıt ver.";
                 if (root.TryGetProperty("recommendations", out var recommendations))
                 {
                     foreach (var rec in recommendations.EnumerateArray())
-                        result.Recommendations.Add(rec.GetString());
+                    {
+                        var recText = rec.GetString();
+                        if (recText != null) result.Recommendations.Add(recText);
+                    }
                 }
             }
             catch (Exception ex)
@@ -174,7 +177,7 @@ Orijinal maddeyi ve önerilen düzeltmeyi sun.";
             var root = doc.RootElement;
             if (root.TryGetProperty("message", out var message) &&
                 message.TryGetProperty("content", out var msgContent))
-                return msgContent.GetString();
+                return msgContent.GetString() ?? responseBody;
 
             return responseBody;
         }

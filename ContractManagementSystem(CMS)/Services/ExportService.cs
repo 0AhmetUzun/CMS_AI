@@ -9,7 +9,7 @@ namespace ContractManagementSystem_CMS_.Services
 {
     public class ExportService
     {
-        public void ExportDirectToPdf(string filePath, AnalysisResult result, string contractTypeName, AIService.AIAnalysisResult aiResult = null)
+        public void ExportDirectToPdf(string filePath, AnalysisResult result, string contractTypeName, AIService.AIAnalysisResult? aiResult = null)
         {
             Document doc = new Document(iTextSharp.text.PageSize.A4, 50f, 50f, 50f, 50f);
 

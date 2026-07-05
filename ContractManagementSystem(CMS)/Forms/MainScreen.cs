@@ -20,8 +20,8 @@ namespace ContractManagementSystem_CMS_
 
         private List<Rules> _activeRules = new List<Rules>();
         private string _selectedFilePath = "";
-        private AnalysisResult _lastAnalysisResult = null;
-        private AIService.AIAnalysisResult _lastAIResult = null;
+        private AnalysisResult? _lastAnalysisResult = null;
+        private AIService.AIAnalysisResult? _lastAIResult = null;
 
         public MainScreen()
         {
@@ -76,7 +76,7 @@ namespace ContractManagementSystem_CMS_
             }
         }
 
-        private void MainScreen_Load(object sender, EventArgs e)
+        private void MainScreen_Load(object? sender, EventArgs e)
         {
             LoadComboBox();
         }
@@ -99,7 +99,7 @@ namespace ContractManagementSystem_CMS_
             catch (Exception ex) { MessageBox.Show("Hata: " + ex.Message); }
         }
 
-        private void comboboxContractType_SelectedIndexChanged(object sender, EventArgs e)
+        private void comboboxContractType_SelectedIndexChanged(object? sender, EventArgs e)
         {
             if (comboboxContractType.SelectedValue != null && int.TryParse(comboboxContractType.SelectedValue.ToString(), out int id))
                 _activeRules = _dbService.GetRulesByTypeId(id);
@@ -208,7 +208,7 @@ namespace ContractManagementSystem_CMS_
             }
         }
 
-        private async void btnAIAnalyze_Click(object sender, EventArgs e)
+        private async void btnAIAnalyze_Click(object? sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(richTextBoxViewContract.Text))
             {
@@ -218,7 +218,7 @@ namespace ContractManagementSystem_CMS_
             await PerformAIAnalysisAsync();
         }
 
-        private async void btnSummarize_Click(object sender, EventArgs e)
+        private async void btnSummarize_Click(object? sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(richTextBoxViewContract.Text))
             {
@@ -317,7 +317,7 @@ namespace ContractManagementSystem_CMS_
                 }
             }
 
-            if (!string.IsNullOrEmpty(result.RawResponse) && result.Details.Count == 0)
+            if (!string.IsNullOrEmpty(result.RawResponse) && (result.Details?.Count ?? 0) == 0)
             {
                 rtbAIResults.SelectionFont = new Font("Segoe UI", 11f, FontStyle.Bold);
                 rtbAIResults.SelectionColor = UIStyleHelper.AccentOrange;

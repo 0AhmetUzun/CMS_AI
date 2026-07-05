@@ -9,6 +9,6 @@ namespace ContractManagementSystem_CMS_.Models
     public class ContractTypes
     {
         public int Id { get; set; }
-        public string TypeName { get; set; }
+        public string TypeName { get; set; } = null!;
     }
 }

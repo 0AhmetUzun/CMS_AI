@@ -7,6 +7,7 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
+    <NoWarn>$(NoWarn);NU1701</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,7 +21,7 @@
     <PackageReference Include="NPOI" Version="2.7.6" />
     <PackageReference Include="OllamaSharp" Version="5.4.25" />
     <PackageReference Include="Select.HtmlToPdf.NetCore" Version="25.2.0" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.9.1" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
   </ItemGroup>
 
   <ItemGroup>

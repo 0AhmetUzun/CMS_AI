@@ -10,8 +10,8 @@ namespace ContractManagementSystem_CMS_.Models
     {
         public int Id { get; set; }
         public int TypeId { get; set; } 
-        public string RuleDescription { get; set; }
-        public string Pattern { get; set; }
+        public string RuleDescription { get; set; } = null!;
+        public string Pattern { get; set; } = null!;
         public bool IsForbidden { get; set; }
         public int Severity { get; set; }
     }

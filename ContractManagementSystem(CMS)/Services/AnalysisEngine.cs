@@ -90,17 +90,17 @@ namespace ContractManagementSystem_CMS_.Services
 
     public class AnalysisResult
     {
-        public List<AnalysisDetail> Details { get; set; }
+        public List<AnalysisDetail> Details { get; set; } = null!;
         public int TotalScore { get; set; }
         public Color BoyaRengi { get; set; }
     }
 
     public class AnalysisDetail
     {
-        public string RuleDescription { get; set; }
-        public string Pattern { get; set; }
+        public string RuleDescription { get; set; } = null!;
+        public string Pattern { get; set; } = null!;
         public int Score { get; set; }
-        public string Status { get; set; }
+        public string Status { get; set; } = null!;
         public bool IsFound { get; set; }
         public bool IsForbidden { get; set; }
         public Color BoyaRengi { get; set; }

@@ -55,7 +55,7 @@ namespace ContractManagementSystem_CMS_.Forms
             txt.Font = new Font("Segoe UI", 9.5f);
         }
 
-        private void RuleManagementForm_Load(object sender, EventArgs e)
+        private void RuleManagementForm_Load(object? sender, EventArgs e)
         {
             LoadContractTypes();
             _isLoaded = true;
@@ -217,7 +217,7 @@ namespace ContractManagementSystem_CMS_.Forms
             }
         }
 
-        private void cmbContractTypes_SelectedIndexChanged(object sender, EventArgs e)
+        private void cmbContractTypes_SelectedIndexChanged(object? sender, EventArgs e)
         {
             RefreshGrid();
         }
