@@ -20,8 +20,39 @@ namespace ContractManagementSystem_CMS_.Forms
         public RuleManagementForm()
         {
             InitializeComponent();
+            ApplyTheme();
             this.Load += RuleManagementForm_Load;
             cmbContractTypes.SelectedIndexChanged += cmbContractTypes_SelectedIndexChanged;
+        }
+
+        private void ApplyTheme()
+        {
+            this.BackColor = UIStyleHelper.PrimaryBg;
+            this.ForeColor = UIStyleHelper.PrimaryText;
+
+            UIStyleHelper.ApplyButtonTheme(btnSave, UIStyleHelper.AccentBlue, Color.White);
+            UIStyleHelper.ApplyButtonTheme(btnDelete, UIStyleHelper.AccentRed, Color.White);
+            UIStyleHelper.ApplyButtonTheme(btnClear, UIStyleHelper.AccentBg, UIStyleHelper.PrimaryText);
+            UIStyleHelper.ApplyButtonTheme(btnAddType, UIStyleHelper.AccentGreen, Color.White);
+            UIStyleHelper.ApplyButtonTheme(btnDeleteType, UIStyleHelper.AccentRed, Color.White);
+
+            ApplyTextBoxTheme(txtRuleDescription);
+            ApplyTextBoxTheme(txtPattern);
+
+            numSeverity.BackColor = UIStyleHelper.AccentBg;
+            numSeverity.ForeColor = UIStyleHelper.PrimaryText;
+
+            chkIsForbidden.ForeColor = UIStyleHelper.PrimaryText;
+            chkIsForbidden.Font = new Font("Segoe UI", 9.5f);
+        }
+
+        private void ApplyTextBoxTheme(TextBox txt)
+        {
+            if (txt == null) return;
+            txt.BackColor = UIStyleHelper.AccentBg;
+            txt.ForeColor = UIStyleHelper.PrimaryText;
+            txt.BorderStyle = BorderStyle.FixedSingle;
+            txt.Font = new Font("Segoe UI", 9.5f);
         }
 
         private void RuleManagementForm_Load(object sender, EventArgs e)
@@ -58,12 +89,8 @@ namespace ContractManagementSystem_CMS_.Forms
                     var filteredRules = allRules.Where(r => r.TypeId == typeId).ToList();
 
                     dgvRules.AutoGenerateColumns = false;
-
                     dgvRules.DataSource = null;
                     dgvRules.DataSource = filteredRules;
-
-
-
                     dgvRules.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 
                     UIStyleHelper.ApplyModernTableTheme(dgvRules);
