@@ -42,23 +42,58 @@ namespace ContractManagementSystem_CMS_.Extensions
             rtb.ResumeLayout();
         }
 
-        public static void EnableDragDrop(this RichTextBox rtb)
+        public static void EnableDragDrop(this RichTextBox rtb, Action<string>? onFileDropped = null)
         {
             rtb.AllowDrop = true;
-            rtb.DragEnter += (sender, e) =>
+
+            rtb.DragEnter -= Rtb_DragEnter;
+            rtb.DragDrop -= Rtb_DragDrop;
+
+            rtb.Tag = onFileDropped;
+
+            rtb.DragEnter += Rtb_DragEnter;
+            rtb.DragDrop += Rtb_DragDrop;
+        }
+
+        private static void Rtb_DragEnter(object? sender, DragEventArgs e)
+        {
+            if (e.Data?.GetDataPresent(DataFormats.FileDrop) == true)
             {
-                if (e.Data?.GetDataPresent(DataFormats.FileDrop) == true) e.Effect = DragDropEffects.Copy;
-                else e.Effect = DragDropEffects.None;
-            };
-            rtb.DragDrop += (sender, e) =>
-            {
-                var data = e.Data?.GetData(DataFormats.FileDrop);
-                if (data is string[] files && files.Length > 0 && Path.GetExtension(files[0]).ToLower() == ".docx")
+                var data = e.Data.GetData(DataFormats.FileDrop) as string[];
+                if (data != null && data.Length > 0)
                 {
-                    try { rtb.Text = WordDocumentHelper.ReadParagraphsOnly(files[0]); }
-                    catch (Exception ex) { MessageBox.Show("Hata: " + ex.Message); }
+                    string ext = Path.GetExtension(data[0]).ToLower();
+                    if (ext == ".docx" || ext == ".pdf")
+                    {
+                        e.Effect = DragDropEffects.Copy;
+                        return;
+                    }
                 }
-            };
+            }
+            e.Effect = DragDropEffects.None;
+        }
+
+        private static void Rtb_DragDrop(object? sender, DragEventArgs e)
+        {
+            if (sender is not RichTextBox rtb) return;
+
+            var data = e.Data?.GetData(DataFormats.FileDrop);
+            if (data is string[] files && files.Length > 0)
+            {
+                string ext = Path.GetExtension(files[0]).ToLower();
+                try
+                {
+                    string content = ext == ".docx"
+                        ? WordDocumentHelper.ReadFullContent(files[0])
+                        : PdfDocumentHelper.ReadPdfContent(files[0]);
+
+                    rtb.Text = content;
+
+                    if (rtb.Tag is Action<string> callback)
+                        callback.Invoke(files[0]);
+                }
+                catch (Exception ex) { MessageBox.Show("Hata: " + ex.Message); }
+            }
         }
 
     }

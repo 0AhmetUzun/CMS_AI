@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ContractManagementSystem_CMS_.Extensions;
@@ -34,6 +35,42 @@ namespace ContractManagementSystem_CMS_
 
             ApplyThemeToControls();
             InitializeEventHandlers();
+            SetupTabControlTheme();
+        }
+
+        private void SetupTabControlTheme()
+        {
+            tabResults.DrawMode = TabDrawMode.OwnerDrawFixed;
+            tabResults.Padding = new Point(12, 4);
+            tabResults.DrawItem += TabResults_DrawItem;
+        }
+
+        private void TabResults_DrawItem(object? sender, DrawItemEventArgs e)
+        {
+            var tc = sender as TabControl;
+            if (tc == null) return;
+
+            bool isSelected = (e.Index == tc.SelectedIndex);
+
+            Color bgColor = isSelected ? UIStyleHelper.AccentBlue : UIStyleHelper.AccentBg;
+            Color textColor = isSelected ? Color.White : UIStyleHelper.SecondaryText;
+
+            using (SolidBrush bgBrush = new SolidBrush(bgColor))
+            {
+                e.Graphics.FillRectangle(bgBrush, e.Bounds);
+            }
+
+            string tabText = tc.TabPages[e.Index].Text;
+            using (StringFormat sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center })
+            {
+                using (SolidBrush textBrush = new SolidBrush(textColor))
+                {
+                    using (Font font = new Font("Segoe UI", 9f, isSelected ? FontStyle.Bold : FontStyle.Regular))
+                    {
+                        e.Graphics.DrawString(tabText, font, textBrush, e.Bounds, sf);
+                    }
+                }
+            }
         }
 
         private void ApplyThemeToControls()
@@ -45,12 +82,20 @@ namespace ContractManagementSystem_CMS_
 
         private void InitializeEventHandlers()
         {
-            richTextBoxViewContract.AllowDrop = true;
-            richTextBoxViewContract.EnableDragDrop();
+            richTextBoxViewContract.EnableDragDrop(filePath =>
+            {
+                _selectedFilePath = filePath;
+                richTextBoxViewContract.ClearHighlights();
+                dataGridViewResultScreen.Rows.Clear();
+                _lastAnalysisResult = null;
+                _lastAIResult = null;
+                rtbAIResults.Clear();
+                UIStyleHelper.ApplyModernTableTheme(dataGridViewResultScreen);
+            });
+
             this.Load += MainScreen_Load;
             btnAIAnalyze.Click += btnAIAnalyze_Click;
             btnSummarize.Click += btnSummarize_Click;
-            _ = InitializeAIOperationAsync();
         }
 
         private async Task InitializeAIOperationAsync()
@@ -107,14 +152,14 @@ namespace ContractManagementSystem_CMS_
 
         private void btnFileSelection_Click(object sender, EventArgs e)
         {
-            using (OpenFileDialog ofd = new OpenFileDialog { Filter = "Word Belgesi (*.docx)|*.docx" })
+            using (OpenFileDialog ofd = new OpenFileDialog { Filter = "Tüm Sözleşme Dosyaları|*.docx;*.pdf|Word Belgesi (*.docx)|*.docx|PDF Dosyası (*.pdf)|*.pdf" })
             {
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
                     _selectedFilePath = ofd.FileName;
                     try
                     {
-                        richTextBoxViewContract.Text = _fileService.ReadWordDoc(_selectedFilePath);
+                        richTextBoxViewContract.Text = _fileService.ReadDocument(_selectedFilePath);
                         richTextBoxViewContract.ClearHighlights();
                         dataGridViewResultScreen.Rows.Clear();
                         _lastAnalysisResult = null;

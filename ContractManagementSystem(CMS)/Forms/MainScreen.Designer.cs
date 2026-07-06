@@ -377,7 +377,6 @@
             richTextBoxViewContract.ForeColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.PrimaryText;
             richTextBoxViewContract.Location = new Point(0, 0);
             richTextBoxViewContract.Name = "richTextBoxViewContract";
-            richTextBoxViewContract.ReadOnly = true;
             richTextBoxViewContract.ScrollBars = RichTextBoxScrollBars.Vertical;
             richTextBoxViewContract.Size = new Size(778, 700);
             richTextBoxViewContract.TabIndex = 4;
