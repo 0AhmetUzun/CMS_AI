@@ -154,6 +154,17 @@ Orijinal maddeyi ve önerilen düzeltmeyi sun.";
             return await SendChatMessageAsync(systemPrompt, userMessage);
         }
 
+        public async Task<string> SearchInContractAsync(string contractText, string question)
+        {
+            string systemPrompt = @"Verilen sözleşme metninde sorulan soruyu yanıtla.
+Eğer sorunun cevabı sözleşmede varsa, ilgili maddeyi ve metni belirt.
+Eğer cevap yoksa 'Bu bilgi sözleşmede bulunamadı' de.
+Kısa ve net yanıt ver. Türkçe yanıt ver.";
+
+            string userMessage = $"Sözleşme İçeriği:\n{contractText}\n\nSoru: {question}";
+            return await SendChatMessageAsync(systemPrompt, userMessage);
+        }
+
         private async Task<string> SendChatMessageAsync(string systemPrompt, string userMessage)
         {
             var request = new

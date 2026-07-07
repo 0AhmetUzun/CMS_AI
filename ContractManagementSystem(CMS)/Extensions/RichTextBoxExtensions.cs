@@ -42,6 +42,17 @@ namespace ContractManagementSystem_CMS_.Extensions
             rtb.ResumeLayout();
         }
 
+        public static void HighlightWordAtPosition(this RichTextBox rtb, int position, int length, Color color)
+        {
+            if (position < 0 || length <= 0 || position + length > rtb.TextLength) return;
+
+            rtb.SuspendLayout();
+            rtb.Select(position, length);
+            rtb.SelectionBackColor = color;
+            rtb.DeselectAll();
+            rtb.ResumeLayout();
+        }
+
         public static void EnableDragDrop(this RichTextBox rtb, Action<string>? onFileDropped = null)
         {
             rtb.AllowDrop = true;

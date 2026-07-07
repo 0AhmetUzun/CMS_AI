@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ContractManagementSystem_CMS_.Extensions;
@@ -18,11 +19,13 @@ namespace ContractManagementSystem_CMS_
         private readonly AnalysisEngine _analysisEngine;
         private readonly ExportService _exportService;
         private readonly AIService _aiService;
+        private readonly SearchService _searchService;
 
         private List<Rules> _activeRules = new List<Rules>();
         private string _selectedFilePath = "";
         private AnalysisResult? _lastAnalysisResult = null;
         private AIService.AIAnalysisResult? _lastAIResult = null;
+        private List<SearchResult> _lastSearchResults = new List<SearchResult>();
 
         public MainScreen()
         {
@@ -32,10 +35,18 @@ namespace ContractManagementSystem_CMS_
             _analysisEngine = new AnalysisEngine();
             _exportService = new ExportService();
             _aiService = new AIService();
+            _searchService = new SearchService();
 
             ApplyThemeToControls();
             InitializeEventHandlers();
             SetupTabControlTheme();
+            InitializeSearchControls();
+        }
+
+        private void InitializeSearchControls()
+        {
+            cmbSearchType.Items.AddRange(new object[] { "Anahtar Kelime", "Doğal Dil" });
+            cmbSearchType.SelectedIndex = 0;
         }
 
         private void SetupTabControlTheme()
@@ -77,7 +88,11 @@ namespace ContractManagementSystem_CMS_
         {
             UIStyleHelper.ApplyButtonTheme(btnSummarize, UIStyleHelper.AccentBg, UIStyleHelper.PrimaryText);
             UIStyleHelper.ApplyButtonTheme(btnManageRules, UIStyleHelper.AccentBg, UIStyleHelper.PrimaryText);
+            UIStyleHelper.ApplyButtonTheme(btnSearch, UIStyleHelper.AccentBlue, Color.White);
+            UIStyleHelper.ApplyButtonTheme(btnClearSearch, UIStyleHelper.AccentBg, UIStyleHelper.PrimaryText);
             UIStyleHelper.SetScoreIndicatorColor(pnlRiskStatus, 0);
+            UIStyleHelper.ApplyModernTableTheme(dgvSearchResults);
+            UIStyleHelper.ApplyModernTableTheme(dataGridViewResultScreen);
         }
 
         private void InitializeEventHandlers()
@@ -87,15 +102,121 @@ namespace ContractManagementSystem_CMS_
                 _selectedFilePath = filePath;
                 richTextBoxViewContract.ClearHighlights();
                 dataGridViewResultScreen.Rows.Clear();
+                dgvSearchResults.Rows.Clear();
                 _lastAnalysisResult = null;
                 _lastAIResult = null;
                 rtbAIResults.Clear();
                 UIStyleHelper.ApplyModernTableTheme(dataGridViewResultScreen);
+                UIStyleHelper.ApplyModernTableTheme(dgvSearchResults);
             });
 
             this.Load += MainScreen_Load;
             btnAIAnalyze.Click += btnAIAnalyze_Click;
             btnSummarize.Click += btnSummarize_Click;
+        }
+
+        private async void btnSearch_Click(object? sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(richTextBoxViewContract.Text))
+            {
+                MessageBox.Show("Lütfen bir sözleşme yükleyin.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(txtSearchQuery.Text))
+            {
+                MessageBox.Show("Lütfen bir arama sorgusu girin.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            string searchType = cmbSearchType.SelectedItem?.ToString() ?? "Anahtar Kelime";
+            string query = txtSearchQuery.Text.Trim();
+
+            try
+            {
+                lblSearchStatus.Text = "Aranıyor...";
+                dgvSearchResults.Rows.Clear();
+                _lastSearchResults.Clear();
+
+                List<SearchResult> results;
+
+                if (searchType == "Doğal Dil")
+                {
+                    btnSearch.Enabled = false;
+                    lblSearchStatus.Text = "Ollama ile aranıyor...";
+                    string aiResponse = await _aiService.SearchInContractAsync(richTextBoxViewContract.Text, query);
+
+                    results = new List<SearchResult>
+                    {
+                        new SearchResult
+                        {
+                            Index = 1,
+                            MatchedText = query,
+                            Context = aiResponse,
+                            Position = -1,
+                            LineNumber = -1,
+                            SearchType = "Doğal Dil"
+                        }
+                    };
+                }
+                else
+                {
+                    results = _searchService.SearchByKeyphrase(richTextBoxViewContract.Text, query);
+                }
+
+                _lastSearchResults = results;
+
+                foreach (var result in results)
+                {
+                    dgvSearchResults.Rows.Add(result.Index, result.MatchedText, result.LineNumber, result.Context);
+                }
+
+                lblSearchStatus.Text = $"{results.Count} sonuç bulundu ({searchType})";
+
+                if (results.Count > 0 && searchType != "Doğal Dil")
+                {
+                    richTextBoxViewContract.ClearHighlights();
+                    foreach (var result in results)
+                    {
+                        if (result.Position >= 0)
+                        {
+                            richTextBoxViewContract.HighlightWordAtPosition(result.Position, result.MatchedText.Length, UIStyleHelper.AccentBlue);
+                        }
+                    }
+                }
+
+                tabResults.SelectedTab = tabPageSearch;
+            }
+            catch (Exception ex)
+            {
+                lblSearchStatus.Text = "Arama hatası: " + ex.Message;
+            }
+            finally
+            {
+                btnSearch.Enabled = true;
+            }
+        }
+
+        private void btnClearSearch_Click(object? sender, EventArgs e)
+        {
+            txtSearchQuery.Clear();
+            dgvSearchResults.Rows.Clear();
+            _lastSearchResults.Clear();
+            lblSearchStatus.Text = "";
+            richTextBoxViewContract.ClearHighlights();
+        }
+
+        private void dgvSearchResults_CellClick(object? sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.RowIndex >= _lastSearchResults.Count) return;
+
+            var result = _lastSearchResults[e.RowIndex];
+            if (result.Position >= 0 && result.SearchType != "Doğal Dil")
+            {
+                richTextBoxViewContract.Select(result.Position, result.MatchedText.Length);
+                richTextBoxViewContract.ScrollToCaret();
+                richTextBoxViewContract.Focus();
+            }
         }
 
         private async Task InitializeAIOperationAsync()
@@ -162,10 +283,12 @@ namespace ContractManagementSystem_CMS_
                         richTextBoxViewContract.Text = _fileService.ReadDocument(_selectedFilePath);
                         richTextBoxViewContract.ClearHighlights();
                         dataGridViewResultScreen.Rows.Clear();
+                        dgvSearchResults.Rows.Clear();
                         _lastAnalysisResult = null;
                         _lastAIResult = null;
                         rtbAIResults.Clear();
                         UIStyleHelper.ApplyModernTableTheme(dataGridViewResultScreen);
+                        UIStyleHelper.ApplyModernTableTheme(dgvSearchResults);
                     }
                     catch (Exception ex) { MessageBox.Show(ex.Message); }
                 }
