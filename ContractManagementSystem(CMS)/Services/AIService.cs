@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using ContractManagementSystem_CMS_.Models;
 
 namespace ContractManagementSystem_CMS_.Services
 {
@@ -132,17 +133,91 @@ Sadece JSON döndür, başka bir şey yazma. Türkçe yanıt ver.";
             return result;
         }
 
-        public async Task<string> SummarizeContractAsync(string contractText)
+        public async Task<ContractSummaryResult> GetBriefSummaryAsync(string contractText)
         {
-            string systemPrompt = @"Verilen sözleşmeyi Türkçe olarak özetle. Özet şu bilgileri içermeli:
-1. Sözleşme türü
-2. Taraflar
-3. Temel hükümler
-4. Süre ve koşullar
-5. Önemli maddeler
+            string systemPrompt = @"Sen bir sözleşme analiz uzmanısın. Verilen sözleşmeyi analiz et ve şu formatta JSON döndür:
 
-Kısa ve anlaşılır bir özet yaz.";
-            return await SendChatMessageAsync(systemPrompt, contractText);
+{
+  ""purpose"": ""Sözleşmenin kısa amacı/kapsamı (1-2 cümle)"",
+  ""parties"": ""Taraflar ve aralarındaki ilişki"",
+  ""duration"": ""Süre ve başlangıç/bitiş tarihi"",
+  ""termination"": ""Fesih koşulları ve yenileme durumu"",
+  ""payment"": ""Ödeme tutarı, para birimi ve koşulları"",
+  ""keyObligations"": [""Madde 1: ..."", ""Madde 2: ..."", ""Madde 3: ...""],
+  ""risks"": [""Uyarı 1: ..."", ""Uyarı 2: ...""]
+}
+
+Kısa ve öz ol. Maksimum 5 ana başlık. Türkçe yanıt ver. Sadece JSON döndür.";
+
+            string response = await SendChatMessageAsync(systemPrompt, contractText);
+            return ParseSummaryResponse(response);
+        }
+
+        public async Task<ContractSummaryResult> GetDetailedSummaryAsync(string contractText)
+        {
+            string systemPrompt = @"Sen bir sözleşme analiz uzmanısın. Verilen sözleşmeyi detaylı olarak analiz et ve şu formatta JSON döndür:
+
+{
+  ""purpose"": ""Sözleşmenin amacı ve kapsamı (2-3 cümle, detaylı)"",
+  ""parties"": ""Taraflar, unvanları ve aralarındaki hukuki ilişki"",
+  ""duration"": ""Sözleşme süresi, başlangıç tarihi, bitiş tarihi, yenileme koşulları"",
+  ""termination"": ""Fesih türleri (olağan/olağanüstü), bildirim süresi, cezai şartlar"",
+  ""payment"": ""Ödeme tutarı, para birimi, vade, gecikme faizi, teminat"",
+  ""keyObligations"": [""Madde 1: Yükümlülük açıklaması"", ""Madde 2: ..."", ""Madde 3: ..."", ""Madde 4: ..."", ""Madde 5: ...""],
+  ""risks"": [""Risk/Uyarı 1: Açıklama"", ""Risk/Uyarı 2: ..."", ""Risk/Uyarı 3: ...""]
+}
+
+Detaylı ve kapsamlı yaz. Tüm önemli maddeleri dahil et. Türkçe yanıt ver. Sadece JSON döndür.";
+
+            string response = await SendChatMessageAsync(systemPrompt, contractText);
+            return ParseSummaryResponse(response);
+        }
+
+        private ContractSummaryResult ParseSummaryResponse(string response)
+        {
+            var result = new ContractSummaryResult { RawResponse = response };
+
+            try
+            {
+                var cleaned = CleanJsonResponse(response);
+                using var doc = JsonDocument.Parse(cleaned);
+                var root = doc.RootElement;
+
+                if (root.TryGetProperty("purpose", out var purpose))
+                    result.Purpose = purpose.GetString() ?? "";
+                if (root.TryGetProperty("parties", out var parties))
+                    result.Parties = parties.GetString() ?? "";
+                if (root.TryGetProperty("duration", out var duration))
+                    result.Duration = duration.GetString() ?? "";
+                if (root.TryGetProperty("termination", out var termination))
+                    result.Termination = termination.GetString() ?? "";
+                if (root.TryGetProperty("payment", out var payment))
+                    result.Payment = payment.GetString() ?? "";
+
+                if (root.TryGetProperty("keyObligations", out var obligations))
+                {
+                    foreach (var item in obligations.EnumerateArray())
+                    {
+                        var text = item.GetString();
+                        if (text != null) result.KeyObligations.Add(text);
+                    }
+                }
+
+                if (root.TryGetProperty("risks", out var risks))
+                {
+                    foreach (var item in risks.EnumerateArray())
+                    {
+                        var text = item.GetString();
+                        if (text != null) result.Risks.Add(text);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine($"[AIService] Özet JSON parse hatası: {ex.Message}");
+            }
+
+            return result;
         }
 
         public async Task<string> SuggestFixAsync(string problematicClause, string context)

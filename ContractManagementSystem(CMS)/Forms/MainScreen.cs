@@ -86,11 +86,9 @@ namespace ContractManagementSystem_CMS_
 
         private void ApplyThemeToControls()
         {
-            UIStyleHelper.ApplyButtonTheme(btnSummarize, UIStyleHelper.AccentBg, UIStyleHelper.PrimaryText);
             UIStyleHelper.ApplyButtonTheme(btnManageRules, UIStyleHelper.AccentBg, UIStyleHelper.PrimaryText);
             UIStyleHelper.ApplyButtonTheme(btnSearch, UIStyleHelper.AccentBlue, Color.White);
             UIStyleHelper.ApplyButtonTheme(btnClearSearch, UIStyleHelper.AccentBg, UIStyleHelper.PrimaryText);
-            UIStyleHelper.SetScoreIndicatorColor(pnlRiskStatus, 0);
             UIStyleHelper.ApplyModernTableTheme(dgvSearchResults);
             UIStyleHelper.ApplyModernTableTheme(dataGridViewResultScreen);
         }
@@ -106,13 +104,12 @@ namespace ContractManagementSystem_CMS_
                 _lastAnalysisResult = null;
                 _lastAIResult = null;
                 rtbAIResults.Clear();
+                rtbSummary.Clear();
                 UIStyleHelper.ApplyModernTableTheme(dataGridViewResultScreen);
                 UIStyleHelper.ApplyModernTableTheme(dgvSearchResults);
             });
 
             this.Load += MainScreen_Load;
-            btnAIAnalyze.Click += btnAIAnalyze_Click;
-            btnSummarize.Click += btnSummarize_Click;
         }
 
         private void txtSearchQuery_KeyDown(object? sender, KeyEventArgs e)
@@ -254,6 +251,7 @@ namespace ContractManagementSystem_CMS_
         private void MainScreen_Load(object? sender, EventArgs e)
         {
             LoadComboBox();
+            _ = InitializeAIOperationAsync();
         }
 
         private void LoadComboBox()
@@ -296,6 +294,7 @@ namespace ContractManagementSystem_CMS_
                         _lastAnalysisResult = null;
                         _lastAIResult = null;
                         rtbAIResults.Clear();
+                        rtbSummary.Clear();
                         UIStyleHelper.ApplyModernTableTheme(dataGridViewResultScreen);
                         UIStyleHelper.ApplyModernTableTheme(dgvSearchResults);
                     }
@@ -304,7 +303,7 @@ namespace ContractManagementSystem_CMS_
             }
         }
 
-        private async void btnFileChecking_Click(object sender, EventArgs e)
+        private async void btnAnalyze_Click(object? sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(richTextBoxViewContract.Text))
             {
@@ -319,8 +318,19 @@ namespace ContractManagementSystem_CMS_
 
             try
             {
+                btnAnalyze.Enabled = false;
+                btnAnalyze.Text = "Analiz ediliyor...";
+                progressAI.Visible = true;
+                progressAI.Style = ProgressBarStyle.Marquee;
+
                 richTextBoxViewContract.ClearHighlights();
                 dataGridViewResultScreen.Rows.Clear();
+                rtbAIResults.Clear();
+                rtbSummary.Clear();
+
+                // 1. Kural Analizi
+                lblAIStatus.Text = "Kural analizi çalıştırılıyor...";
+                lblAIStatus.ForeColor = UIStyleHelper.AccentBlue;
 
                 var localResult = _analysisEngine.PerformAnalysis(richTextBoxViewContract.Text, selectedId);
                 if (localResult == null)
@@ -333,107 +343,136 @@ namespace ContractManagementSystem_CMS_
                         richTextBoxViewContract.HighlightPattern(detail.Pattern, detail.BoyaRengi);
                 }
 
-                UpdateStatusUI(localResult.TotalScore);
                 _lastAnalysisResult = localResult;
                 UIStyleHelper.ApplyModernTableTheme(dataGridViewResultScreen);
+                tabResults.SelectedTab = tabPageRules;
 
-                _ = PerformAIAnalysisAsync();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Analiz hatası: {ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private async Task PerformAIAnalysisAsync()
-        {
-            try
-            {
-                this.Invoke(() =>
-                {
-                    progressAI.Visible = true;
-                    progressAI.Style = ProgressBarStyle.Marquee;
-                    lblAIStatus.Text = "Ollama: AI analiz ediliyor...";
-                    lblAIStatus.ForeColor = UIStyleHelper.AccentPurple;
-                    btnAIAnalyze.Enabled = false;
-                });
+                // 2. AI Analiz
+                lblAIStatus.Text = "Ollama: AI analiz ediliyor...";
+                lblAIStatus.ForeColor = UIStyleHelper.AccentPurple;
 
                 string contractType = comboboxContractType.Text;
                 var aiResult = await _aiService.AnalyzeContractAsync(richTextBoxViewContract.Text, contractType);
 
-                this.Invoke(() =>
-                {
-                    _lastAIResult = aiResult;
-                    DisplayAIResults(aiResult);
-                    progressAI.Visible = false;
-                    btnAIAnalyze.Enabled = true;
-                    lblAIStatus.Text = "Ollama: Bağlı";
-                    lblAIStatus.ForeColor = UIStyleHelper.AccentGreen;
-                    tabResults.SelectedTab = tabPageAI;
-                });
-            }
-            catch (Exception ex)
-            {
-                this.Invoke(() =>
-                {
-                    progressAI.Visible = false;
-                    btnAIAnalyze.Enabled = true;
-                    lblAIStatus.Text = "Ollama: Hata";
-                    lblAIStatus.ForeColor = UIStyleHelper.AccentRed;
-                    rtbAIResults.Text = $"AI analiz hatası:\n{ex.Message}";
-                });
-            }
-        }
+                _lastAIResult = aiResult;
+                DisplayAIResults(aiResult);
+                tabResults.SelectedTab = tabPageAI;
 
-        private async void btnAIAnalyze_Click(object? sender, EventArgs e)
-        {
-            if (string.IsNullOrEmpty(richTextBoxViewContract.Text))
-            {
-                MessageBox.Show("Lütfen bir sözleşme yükleyin.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-            await PerformAIAnalysisAsync();
-        }
-
-        private async void btnSummarize_Click(object? sender, EventArgs e)
-        {
-            if (string.IsNullOrEmpty(richTextBoxViewContract.Text))
-            {
-                MessageBox.Show("Lütfen bir sözleşme yükleyin.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-            try
-            {
-                progressAI.Visible = true;
-                progressAI.Style = ProgressBarStyle.Marquee;
+                // 3. Özet Oluştur
                 lblAIStatus.Text = "Ollama: Özet oluşturuluyor...";
                 lblAIStatus.ForeColor = UIStyleHelper.AccentPurple;
-                btnSummarize.Enabled = false;
 
-                string summary = await _aiService.SummarizeContractAsync(richTextBoxViewContract.Text);
+                bool isDetailed = rbDetailedSummary.Checked;
+                ContractSummaryResult summary;
 
-                rtbAIResults.Clear();
-                rtbAIResults.SelectionFont = new Font("Segoe UI", 13f, FontStyle.Bold);
-                rtbAIResults.SelectionColor = UIStyleHelper.AccentBlue;
-                rtbAIResults.AppendText("SÖZLEŞME ÖZETİ\n");
-                rtbAIResults.AppendText("─".PadRight(40, '─') + "\n\n");
-                rtbAIResults.SelectionFont = new Font("Segoe UI", 10.5f);
-                rtbAIResults.SelectionColor = UIStyleHelper.PrimaryText;
-                rtbAIResults.AppendText(summary);
+                if (isDetailed)
+                    summary = await _aiService.GetDetailedSummaryAsync(richTextBoxViewContract.Text);
+                else
+                    summary = await _aiService.GetBriefSummaryAsync(richTextBoxViewContract.Text);
 
-                tabResults.SelectedTab = tabPageAI;
+                DisplayStructuredSummary(summary, isDetailed);
+                tabResults.SelectedTab = tabPageSummary;
+
+                // Tamamlandı
+                lblAIStatus.Text = "Ollama: Bağlı";
+                lblAIStatus.ForeColor = UIStyleHelper.AccentGreen;
             }
             catch (Exception ex)
             {
-                rtbAIResults.Text = $"Özet hatası:\n{ex.Message}";
+                lblAIStatus.Text = "Ollama: Hata";
+                lblAIStatus.ForeColor = UIStyleHelper.AccentRed;
+                rtbAIResults.Text = $"Analiz hatası:\n{ex.Message}";
             }
             finally
             {
                 progressAI.Visible = false;
-                btnSummarize.Enabled = true;
-                lblAIStatus.Text = "Ollama: Bağlı";
-                lblAIStatus.ForeColor = UIStyleHelper.AccentGreen;
+                btnAnalyze.Enabled = true;
+                btnAnalyze.Text = "Sözleşmeyi Analiz Et";
             }
+        }
+
+        private void DisplayStructuredSummary(ContractSummaryResult summary, bool isDetailed)
+        {
+            rtbSummary.Clear();
+
+            string title = isDetailed ? "DETAYLI SÖZLEŞME ÖZETİ" : "SÖZLEŞME ÖZETİ";
+            rtbSummary.SelectionFont = new Font("Segoe UI", 13f, FontStyle.Bold);
+            rtbSummary.SelectionColor = UIStyleHelper.AccentBlue;
+            rtbSummary.AppendText(title + "\n");
+            rtbSummary.AppendText("═".PadRight(45, '═') + "\n\n");
+
+            if (!string.IsNullOrEmpty(summary.Purpose))
+            {
+                AddSummarySection(rtbSummary, "AMAÇ / KAPSAM", summary.Purpose);
+            }
+
+            if (!string.IsNullOrEmpty(summary.Parties))
+            {
+                AddSummarySection(rtbSummary, "TARAFLAR & İLİŞKİ", summary.Parties);
+            }
+
+            if (!string.IsNullOrEmpty(summary.Duration))
+            {
+                AddSummarySection(rtbSummary, "SÜRE & TARİHLER", summary.Duration);
+            }
+
+            if (!string.IsNullOrEmpty(summary.Termination))
+            {
+                AddSummarySection(rtbSummary, "FESİH & YENİLEME", summary.Termination);
+            }
+
+            if (!string.IsNullOrEmpty(summary.Payment))
+            {
+                AddSummarySection(rtbSummary, "ÖDEME / TUTAR", summary.Payment);
+            }
+
+            if (summary.KeyObligations.Count > 0)
+            {
+                rtbSummary.SelectionFont = new Font("Segoe UI", 11f, FontStyle.Bold);
+                rtbSummary.SelectionColor = UIStyleHelper.AccentOrange;
+                rtbSummary.AppendText("KRİTİK YÜKÜMLÜLÜKLER\n");
+                rtbSummary.AppendText("─".PadRight(40, '─') + "\n");
+
+                foreach (var obligation in summary.KeyObligations)
+                {
+                    rtbSummary.SelectionFont = new Font("Segoe UI", 10f);
+                    rtbSummary.SelectionColor = UIStyleHelper.PrimaryText;
+                    rtbSummary.AppendText($"  • {obligation}\n");
+                }
+                rtbSummary.AppendText("\n");
+            }
+
+            if (summary.Risks.Count > 0)
+            {
+                rtbSummary.SelectionFont = new Font("Segoe UI", 11f, FontStyle.Bold);
+                rtbSummary.SelectionColor = UIStyleHelper.AccentRed;
+                rtbSummary.AppendText("RİSK / UYARILAR\n");
+                rtbSummary.AppendText("─".PadRight(40, '─') + "\n");
+
+                foreach (var risk in summary.Risks)
+                {
+                    rtbSummary.SelectionFont = new Font("Segoe UI", 10f);
+                    rtbSummary.SelectionColor = UIStyleHelper.AccentOrange;
+                    rtbSummary.AppendText($"  ⚠ {risk}\n");
+                }
+                rtbSummary.AppendText("\n");
+            }
+
+            rtbSummary.SelectionFont = new Font("Segoe UI", 8f, FontStyle.Italic);
+            rtbSummary.SelectionColor = UIStyleHelper.MutedText;
+            rtbSummary.AppendText("─".PadRight(40, '─') + "\n");
+            rtbSummary.AppendText("Kaynak: Belge içeriğinden AI tarafından otomatik oluşturulmuştur.\n");
+        }
+
+        private void AddSummarySection(RichTextBox rtb, string sectionTitle, string content)
+        {
+            rtb.SelectionFont = new Font("Segoe UI", 11f, FontStyle.Bold);
+            rtb.SelectionColor = UIStyleHelper.AccentGreen;
+            rtb.AppendText($"{sectionTitle}\n");
+            rtb.AppendText("─".PadRight(40, '─') + "\n");
+            rtb.SelectionFont = new Font("Segoe UI", 10f);
+            rtb.SelectionColor = UIStyleHelper.PrimaryText;
+            rtb.AppendText($"  {content}\n\n");
         }
 
         private void DisplayAIResults(AIService.AIAnalysisResult result)
@@ -524,12 +563,6 @@ namespace ContractManagementSystem_CMS_
                 "kritik" => Color.FromArgb(180, 0, 0),
                 _ => UIStyleHelper.SecondaryText
             };
-        }
-
-        private void UpdateStatusUI(int score)
-        {
-            lblScoreText.Text = $"Risk Skoru: {score}";
-            UIStyleHelper.SetScoreIndicatorColor(pnlRiskStatus, score);
         }
 
         private void btnExport_Click(object sender, EventArgs e)
