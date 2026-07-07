@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Text;
 using System.Text.RegularExpressions;
 using ContractManagementSystem_CMS_.Models;
 
@@ -15,7 +16,6 @@ namespace ContractManagementSystem_CMS_.Services
                 return results;
 
             CompareInfo trCompare = CultureInfo.GetCultureInfo("tr-TR").CompareInfo;
-            string[] lines = text.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None);
             int searchIndex = 0;
             int resultIndex = 1;
 

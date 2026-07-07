@@ -31,6 +31,7 @@
             dgvSearchResults = new DataGridView();
             SearchIndex = new DataGridViewTextBoxColumn();
             SearchMatch = new DataGridViewTextBoxColumn();
+            SearchType = new DataGridViewTextBoxColumn();
             SearchLine = new DataGridViewTextBoxColumn();
             SearchContext = new DataGridViewTextBoxColumn();
             dataGridViewResultScreen = new DataGridView();
@@ -72,14 +73,8 @@
             splitContainer1.FixedPanel = FixedPanel.Panel1;
             splitContainer1.Location = new Point(0, 0);
             splitContainer1.Name = "splitContainer1";
-            // 
-            // splitContainer1.Panel1
-            // 
             splitContainer1.Panel1.Controls.Add(pnlMenu);
             splitContainer1.Panel1MinSize = 420;
-            // 
-            // splitContainer1.Panel2
-            // 
             splitContainer1.Panel2.Controls.Add(richTextBoxViewContract);
             splitContainer1.Panel2.BackColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.SecondaryBg;
             splitContainer1.Size = new Size(1280, 750);
@@ -122,11 +117,11 @@
             comboboxContractType.ForeColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.PrimaryText;
             comboboxContractType.FlatStyle = FlatStyle.Flat;
             comboboxContractType.DropDownStyle = ComboBoxStyle.DropDownList;
-            comboboxContractType.Font = new Font("Segoe UI", 9.5F);
+            comboboxContractType.Font = new Font("Segoe UI", 9F);
             comboboxContractType.FormattingEnabled = true;
             comboboxContractType.Location = new Point(12, 12);
             comboboxContractType.Name = "comboboxContractType";
-            comboboxContractType.Size = new Size(396, 25);
+            comboboxContractType.Size = new Size(396, 24);
             comboboxContractType.TabIndex = 0;
             comboboxContractType.SelectedIndexChanged += comboboxContractType_SelectedIndexChanged;
             // 
@@ -139,13 +134,13 @@
             btnFileSelection.FlatAppearance.BorderSize = 1;
             btnFileSelection.FlatAppearance.BorderColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.BorderColor;
             btnFileSelection.FlatStyle = FlatStyle.Flat;
-            btnFileSelection.Font = new Font("Segoe UI", 9.5F);
+            btnFileSelection.Font = new Font("Segoe UI", 9F);
             btnFileSelection.ForeColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.PrimaryText;
-            btnFileSelection.Location = new Point(12, 42);
+            btnFileSelection.Location = new Point(12, 40);
             btnFileSelection.Name = "btnFileSelection";
-            btnFileSelection.Size = new Size(396, 36);
+            btnFileSelection.Size = new Size(396, 30);
             btnFileSelection.TabIndex = 1;
-            btnFileSelection.Text = "Sözleşme Dosyası Seç";
+            btnFileSelection.Text = "Dosya Seç (.docx / .pdf)";
             btnFileSelection.UseVisualStyleBackColor = false;
             btnFileSelection.Click += btnFileSelection_Click;
             // 
@@ -153,20 +148,20 @@
             // 
             pnlRiskStatus.BackColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.RiskGreen;
             pnlRiskStatus.ForeColor = Color.White;
-            pnlRiskStatus.Location = new Point(12, 88);
+            pnlRiskStatus.Location = new Point(12, 80);
             pnlRiskStatus.Name = "pnlRiskStatus";
-            pnlRiskStatus.Size = new Size(18, 18);
+            pnlRiskStatus.Size = new Size(16, 16);
             pnlRiskStatus.TabIndex = 4;
             // 
             // lblScoreText
             // 
             lblScoreText.AutoSize = true;
             lblScoreText.BackColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.PrimaryBg;
-            lblScoreText.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            lblScoreText.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
             lblScoreText.ForeColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.PrimaryText;
-            lblScoreText.Location = new Point(36, 87);
+            lblScoreText.Location = new Point(34, 79);
             lblScoreText.Name = "lblScoreText";
-            lblScoreText.Size = new Size(110, 17);
+            lblScoreText.Size = new Size(100, 16);
             lblScoreText.TabIndex = 3;
             lblScoreText.Text = "Risk Skoru: 0";
             // 
@@ -178,11 +173,11 @@
             btnFileChecking.Cursor = Cursors.Hand;
             btnFileChecking.FlatAppearance.BorderSize = 0;
             btnFileChecking.FlatStyle = FlatStyle.Flat;
-            btnFileChecking.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            btnFileChecking.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
             btnFileChecking.ForeColor = Color.White;
-            btnFileChecking.Location = new Point(226, 85);
+            btnFileChecking.Location = new Point(226, 78);
             btnFileChecking.Name = "btnFileChecking";
-            btnFileChecking.Size = new Size(182, 24);
+            btnFileChecking.Size = new Size(182, 20);
             btnFileChecking.TabIndex = 2;
             btnFileChecking.Text = "Sözleşmeyi Analiz Et";
             btnFileChecking.UseVisualStyleBackColor = false;
@@ -196,11 +191,11 @@
             btnSummarize.FlatAppearance.BorderSize = 1;
             btnSummarize.FlatAppearance.BorderColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.BorderColor;
             btnSummarize.FlatStyle = FlatStyle.Flat;
-            btnSummarize.Font = new Font("Segoe UI", 9F);
+            btnSummarize.Font = new Font("Segoe UI", 8.5F);
             btnSummarize.ForeColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.PrimaryText;
-            btnSummarize.Location = new Point(12, 115);
+            btnSummarize.Location = new Point(12, 104);
             btnSummarize.Name = "btnSummarize";
-            btnSummarize.Size = new Size(200, 24);
+            btnSummarize.Size = new Size(200, 20);
             btnSummarize.TabIndex = 9;
             btnSummarize.Text = "Sözleşmeyi Özetle";
             btnSummarize.UseVisualStyleBackColor = false;
@@ -213,11 +208,11 @@
             btnAIAnalyze.Cursor = Cursors.Hand;
             btnAIAnalyze.FlatAppearance.BorderSize = 0;
             btnAIAnalyze.FlatStyle = FlatStyle.Flat;
-            btnAIAnalyze.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            btnAIAnalyze.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
             btnAIAnalyze.ForeColor = Color.White;
-            btnAIAnalyze.Location = new Point(226, 115);
+            btnAIAnalyze.Location = new Point(226, 104);
             btnAIAnalyze.Name = "btnAIAnalyze";
-            btnAIAnalyze.Size = new Size(182, 24);
+            btnAIAnalyze.Size = new Size(182, 20);
             btnAIAnalyze.TabIndex = 8;
             btnAIAnalyze.Text = "AI ile Analiz Et";
             btnAIAnalyze.UseVisualStyleBackColor = false;
@@ -226,11 +221,11 @@
             // 
             lblAIStatus.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             lblAIStatus.BackColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.PrimaryBg;
-            lblAIStatus.Font = new Font("Segoe UI", 8F);
+            lblAIStatus.Font = new Font("Segoe UI", 7.5F);
             lblAIStatus.ForeColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.SecondaryText;
-            lblAIStatus.Location = new Point(12, 145);
+            lblAIStatus.Location = new Point(12, 128);
             lblAIStatus.Name = "lblAIStatus";
-            lblAIStatus.Size = new Size(396, 16);
+            lblAIStatus.Size = new Size(396, 14);
             lblAIStatus.TabIndex = 10;
             lblAIStatus.Text = "Ollama: Kontrol ediliyor...";
             // 
@@ -239,7 +234,7 @@
             progressAI.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             progressAI.BackColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.AccentBg;
             progressAI.ForeColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.AccentPurple;
-            progressAI.Location = new Point(12, 163);
+            progressAI.Location = new Point(12, 144);
             progressAI.Name = "progressAI";
             progressAI.Size = new Size(396, 3);
             progressAI.Style = ProgressBarStyle.Marquee;
@@ -249,11 +244,11 @@
             // lblSearchTitle
             // 
             lblSearchTitle.AutoSize = true;
-            lblSearchTitle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            lblSearchTitle.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
             lblSearchTitle.ForeColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.AccentBlue;
-            lblSearchTitle.Location = new Point(12, 176);
+            lblSearchTitle.Location = new Point(12, 156);
             lblSearchTitle.Name = "lblSearchTitle";
-            lblSearchTitle.Size = new Size(47, 15);
+            lblSearchTitle.Size = new Size(40, 13);
             lblSearchTitle.TabIndex = 12;
             lblSearchTitle.Text = "ARAMA";
             // 
@@ -262,12 +257,12 @@
             cmbSearchType.BackColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.AccentBg;
             cmbSearchType.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbSearchType.FlatStyle = FlatStyle.Flat;
-            cmbSearchType.Font = new Font("Segoe UI", 9F);
+            cmbSearchType.Font = new Font("Segoe UI", 8.5F);
             cmbSearchType.ForeColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.PrimaryText;
             cmbSearchType.FormattingEnabled = true;
-            cmbSearchType.Location = new Point(12, 196);
+            cmbSearchType.Location = new Point(12, 174);
             cmbSearchType.Name = "cmbSearchType";
-            cmbSearchType.Size = new Size(110, 24);
+            cmbSearchType.Size = new Size(100, 22);
             cmbSearchType.TabIndex = 13;
             // 
             // txtSearchQuery
@@ -275,13 +270,14 @@
             txtSearchQuery.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             txtSearchQuery.BackColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.AccentBg;
             txtSearchQuery.BorderStyle = BorderStyle.FixedSingle;
-            txtSearchQuery.Font = new Font("Segoe UI", 9F);
+            txtSearchQuery.Font = new Font("Segoe UI", 8.5F);
             txtSearchQuery.ForeColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.PrimaryText;
-            txtSearchQuery.Location = new Point(128, 196);
+            txtSearchQuery.Location = new Point(118, 174);
             txtSearchQuery.Name = "txtSearchQuery";
             txtSearchQuery.PlaceholderText = "Aranacak metin...";
-            txtSearchQuery.Size = new Size(168, 23);
+            txtSearchQuery.Size = new Size(140, 22);
             txtSearchQuery.TabIndex = 14;
+            txtSearchQuery.KeyDown += txtSearchQuery_KeyDown;
             // 
             // btnSearch
             // 
@@ -290,11 +286,11 @@
             btnSearch.Cursor = Cursors.Hand;
             btnSearch.FlatAppearance.BorderSize = 0;
             btnSearch.FlatStyle = FlatStyle.Flat;
-            btnSearch.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            btnSearch.Font = new Font("Segoe UI", 8F, FontStyle.Bold);
             btnSearch.ForeColor = Color.White;
-            btnSearch.Location = new Point(302, 196);
+            btnSearch.Location = new Point(266, 174);
             btnSearch.Name = "btnSearch";
-            btnSearch.Size = new Size(52, 24);
+            btnSearch.Size = new Size(50, 22);
             btnSearch.TabIndex = 15;
             btnSearch.Text = "Ara";
             btnSearch.UseVisualStyleBackColor = false;
@@ -308,11 +304,11 @@
             btnClearSearch.FlatAppearance.BorderColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.BorderColor;
             btnClearSearch.FlatAppearance.BorderSize = 1;
             btnClearSearch.FlatStyle = FlatStyle.Flat;
-            btnClearSearch.Font = new Font("Segoe UI", 8.5F);
+            btnClearSearch.Font = new Font("Segoe UI", 8F);
             btnClearSearch.ForeColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.PrimaryText;
-            btnClearSearch.Location = new Point(356, 196);
+            btnClearSearch.Location = new Point(322, 174);
             btnClearSearch.Name = "btnClearSearch";
-            btnClearSearch.Size = new Size(52, 24);
+            btnClearSearch.Size = new Size(86, 22);
             btnClearSearch.TabIndex = 16;
             btnClearSearch.Text = "Temizle";
             btnClearSearch.UseVisualStyleBackColor = false;
@@ -321,12 +317,12 @@
             // lblSearchStatus
             // 
             lblSearchStatus.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            lblSearchStatus.Font = new Font("Segoe UI", 8F);
+            lblSearchStatus.Font = new Font("Segoe UI", 7.5F);
             lblSearchStatus.ForeColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.SecondaryText;
-            lblSearchStatus.Location = new Point(12, 224);
+            lblSearchStatus.Location = new Point(12, 200);
             lblSearchStatus.Name = "lblSearchStatus";
-            lblSearchStatus.Size = new Size(396, 14);
-            lblSearchStatus.TabIndex = 17;
+            lblSearchStatus.Size = new Size(124, 14);
+            lblSearchStatus.TabIndex = 20;
             lblSearchStatus.Text = "";
             // 
             // tabResults
@@ -336,22 +332,22 @@
             tabResults.Controls.Add(tabPageAI);
             tabResults.Controls.Add(tabPageSearch);
             tabResults.DrawMode = TabDrawMode.OwnerDrawFixed;
-            tabResults.Font = new Font("Segoe UI", 9F);
-            tabResults.Location = new Point(12, 244);
+            tabResults.Font = new Font("Segoe UI", 8.5F);
+            tabResults.Location = new Point(12, 220);
             tabResults.Name = "tabResults";
             tabResults.SelectedIndex = 0;
-            tabResults.Size = new Size(396, 406);
-            tabResults.TabIndex = 18;
+            tabResults.Size = new Size(396, 434);
+            tabResults.TabIndex = 21;
             // 
             // tabPageRules
             // 
             tabPageRules.BackColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.SecondaryBg;
             tabPageRules.Controls.Add(dataGridViewResultScreen);
             tabPageRules.ForeColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.PrimaryText;
-            tabPageRules.Location = new Point(4, 26);
+            tabPageRules.Location = new Point(4, 24);
             tabPageRules.Name = "tabPageRules";
             tabPageRules.Padding = new Padding(3);
-            tabPageRules.Size = new Size(388, 376);
+            tabPageRules.Size = new Size(388, 380);
             tabPageRules.TabIndex = 0;
             tabPageRules.Text = "Kural Analizi";
             // 
@@ -360,10 +356,10 @@
             tabPageAI.BackColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.SecondaryBg;
             tabPageAI.Controls.Add(rtbAIResults);
             tabPageAI.ForeColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.PrimaryText;
-            tabPageAI.Location = new Point(4, 26);
+            tabPageAI.Location = new Point(4, 24);
             tabPageAI.Name = "tabPageAI";
             tabPageAI.Padding = new Padding(3);
-            tabPageAI.Size = new Size(388, 376);
+            tabPageAI.Size = new Size(388, 380);
             tabPageAI.TabIndex = 1;
             tabPageAI.Text = "AI Analizi";
             // 
@@ -372,10 +368,10 @@
             tabPageSearch.BackColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.SecondaryBg;
             tabPageSearch.Controls.Add(dgvSearchResults);
             tabPageSearch.ForeColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.PrimaryText;
-            tabPageSearch.Location = new Point(4, 26);
+            tabPageSearch.Location = new Point(4, 24);
             tabPageSearch.Name = "tabPageSearch";
             tabPageSearch.Padding = new Padding(3);
-            tabPageSearch.Size = new Size(388, 376);
+            tabPageSearch.Size = new Size(388, 380);
             tabPageSearch.TabIndex = 2;
             tabPageSearch.Text = "Arama Sonuçları";
             // 
@@ -389,17 +385,17 @@
             dgvSearchResults.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
             dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleCenter;
             dataGridViewCellStyle2.BackColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.AccentBg;
-            dataGridViewCellStyle2.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            dataGridViewCellStyle2.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
             dataGridViewCellStyle2.ForeColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.PrimaryText;
             dataGridViewCellStyle2.SelectionBackColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.AccentBg;
             dataGridViewCellStyle2.SelectionForeColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.PrimaryText;
             dgvSearchResults.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
-            dgvSearchResults.ColumnHeadersHeight = 32;
+            dgvSearchResults.ColumnHeadersHeight = 28;
             dgvSearchResults.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-            dgvSearchResults.Columns.AddRange(new DataGridViewColumn[] { SearchIndex, SearchMatch, SearchLine, SearchContext });
+            dgvSearchResults.Columns.AddRange(new DataGridViewColumn[] { SearchIndex, SearchMatch, SearchType, SearchLine, SearchContext });
             dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle3.BackColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.SecondaryBg;
-            dataGridViewCellStyle3.Font = new Font("Segoe UI", 9F);
+            dataGridViewCellStyle3.Font = new Font("Segoe UI", 8.5F);
             dataGridViewCellStyle3.ForeColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.PrimaryText;
             dataGridViewCellStyle3.SelectionBackColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.HoverColor;
             dataGridViewCellStyle3.SelectionForeColor = Color.White;
@@ -412,7 +408,7 @@
             dgvSearchResults.ReadOnly = true;
             dgvSearchResults.RowHeadersVisible = false;
             dgvSearchResults.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvSearchResults.Size = new Size(382, 370);
+            dgvSearchResults.Size = new Size(382, 374);
             dgvSearchResults.TabIndex = 0;
             dgvSearchResults.CellClick += dgvSearchResults_CellClick;
             // 
@@ -421,7 +417,7 @@
             SearchIndex.HeaderText = "#";
             SearchIndex.Name = "SearchIndex";
             SearchIndex.ReadOnly = true;
-            SearchIndex.Width = 35;
+            SearchIndex.Width = 30;
             // 
             // SearchMatch
             // 
@@ -430,19 +426,26 @@
             SearchMatch.Name = "SearchMatch";
             SearchMatch.ReadOnly = true;
             // 
+            // SearchType
+            // 
+            SearchType.HeaderText = "Tür";
+            SearchType.Name = "SearchType";
+            SearchType.ReadOnly = true;
+            SearchType.Width = 70;
+            // 
             // SearchLine
             // 
             SearchLine.HeaderText = "Satır";
             SearchLine.Name = "SearchLine";
             SearchLine.ReadOnly = true;
-            SearchLine.Width = 50;
+            SearchLine.Width = 40;
             // 
             // SearchContext
             // 
             SearchContext.HeaderText = "Bağlam";
             SearchContext.Name = "SearchContext";
             SearchContext.ReadOnly = true;
-            SearchContext.Width = 180;
+            SearchContext.Width = 160;
             // 
             // dataGridViewResultScreen
             // 
@@ -454,13 +457,13 @@
             dataGridViewResultScreen.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
             dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleCenter;
             dataGridViewCellStyle1.BackColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.AccentBg;
-            dataGridViewCellStyle1.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+            dataGridViewCellStyle1.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             dataGridViewCellStyle1.ForeColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.PrimaryText;
             dataGridViewCellStyle1.SelectionBackColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.AccentBg;
             dataGridViewCellStyle1.SelectionForeColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.PrimaryText;
             dataGridViewCellStyle1.WrapMode = DataGridViewTriState.True;
             dataGridViewResultScreen.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
-            dataGridViewResultScreen.ColumnHeadersHeight = 36;
+            dataGridViewResultScreen.ColumnHeadersHeight = 32;
             dataGridViewResultScreen.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             dataGridViewResultScreen.Columns.AddRange(new DataGridViewColumn[] { MaddeAdı, Durum });
             dataGridViewResultScreen.DefaultCellStyle.BackColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.SecondaryBg;
@@ -492,19 +495,19 @@
             Durum.HeaderText = "Durum";
             Durum.Name = "Durum";
             Durum.ReadOnly = true;
-            Durum.Width = 160;
+            Durum.Width = 150;
             // 
             // rtbAIResults
             // 
             rtbAIResults.BackColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.SecondaryBg;
             rtbAIResults.BorderStyle = BorderStyle.None;
             rtbAIResults.Dock = DockStyle.Fill;
-            rtbAIResults.Font = new Font("Segoe UI", 10F);
+            rtbAIResults.Font = new Font("Segoe UI", 9.5F);
             rtbAIResults.ForeColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.PrimaryText;
             rtbAIResults.Location = new Point(3, 3);
             rtbAIResults.Name = "rtbAIResults";
             rtbAIResults.ReadOnly = true;
-            rtbAIResults.Size = new Size(382, 370);
+            rtbAIResults.Size = new Size(382, 374);
             rtbAIResults.TabIndex = 0;
             rtbAIResults.Text = "";
             // 
@@ -516,13 +519,13 @@
             btnExport.Cursor = Cursors.Hand;
             btnExport.FlatAppearance.BorderSize = 0;
             btnExport.FlatStyle = FlatStyle.Flat;
-            btnExport.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            btnExport.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
             btnExport.ForeColor = Color.White;
-            btnExport.Location = new Point(12, 658);
+            btnExport.Location = new Point(12, 662);
             btnExport.Name = "btnExport";
-            btnExport.Size = new Size(336, 36);
+            btnExport.Size = new Size(336, 32);
             btnExport.TabIndex = 6;
-            btnExport.Text = "Raporu PDF Olarak Dışa Aktar";
+            btnExport.Text = "PDF Dışa Aktar";
             btnExport.UseVisualStyleBackColor = false;
             btnExport.Click += btnExport_Click;
             // 
@@ -535,11 +538,11 @@
             btnManageRules.FlatAppearance.BorderColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.BorderColor;
             btnManageRules.FlatAppearance.BorderSize = 1;
             btnManageRules.FlatStyle = FlatStyle.Flat;
-            btnManageRules.Font = new Font("Segoe UI", 14F);
+            btnManageRules.Font = new Font("Segoe UI", 12F);
             btnManageRules.ForeColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.PrimaryText;
-            btnManageRules.Location = new Point(354, 658);
+            btnManageRules.Location = new Point(354, 662);
             btnManageRules.Name = "btnManageRules";
-            btnManageRules.Size = new Size(54, 36);
+            btnManageRules.Size = new Size(54, 32);
             btnManageRules.TabIndex = 7;
             btnManageRules.Text = "\u2699";
             btnManageRules.UseVisualStyleBackColor = false;
@@ -550,7 +553,7 @@
             richTextBoxViewContract.BackColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.SecondaryBg;
             richTextBoxViewContract.BorderStyle = BorderStyle.None;
             richTextBoxViewContract.Dock = DockStyle.Fill;
-            richTextBoxViewContract.Font = new Font("Segoe UI", 11F);
+            richTextBoxViewContract.Font = new Font("Segoe UI", 10.5F);
             richTextBoxViewContract.ForeColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.PrimaryText;
             richTextBoxViewContract.Location = new Point(0, 0);
             richTextBoxViewContract.Name = "richTextBoxViewContract";
@@ -621,6 +624,7 @@
         private Label lblSearchStatus;
         private DataGridViewTextBoxColumn SearchIndex;
         private DataGridViewTextBoxColumn SearchMatch;
+        private DataGridViewTextBoxColumn SearchType;
         private DataGridViewTextBoxColumn SearchLine;
         private DataGridViewTextBoxColumn SearchContext;
     }

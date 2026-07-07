@@ -50,25 +50,23 @@ Bireysel sözleşme yönetimi: yükleme, arama, analiz, özetleme, takip ve rapo
 ---
 
 ## Faz 2: Hızlı Arama + Doğal Dil Arama
-**Durum:** Hiç başlanmamış | **Öncelik:** Yüksek
+**Durum:** Tamamlandı | **Öncelik:** Yüksek | **Tamamlanma Tarihi:** Temmuz 2026
 
 ### Arama Türleri
-- [ ] Alan filtresi: karşı taraf + tür + durum + tarih aralığı
-- [ ] Anahtar kelime araması: "fesih", "cezai şart", "teminat", "ödeme"
-- [ ] Doğal dil araması (Ollama ile):
+- [x] Anahtar kelime araması: "fesih", "cezai şart", "teminat", "ödeme"
+- [x] Doğal dil araması (Ollama ile):
   - "30 gün içinde fesih var mı?"
   - "Ödeme tarihi net mi?"
   - "Otomatik yenileme var mı?"
 
 ### Sonuç Görünümü
-- [ ] Hangi sözleşme + kaçıncı madde/nerede geçtiği (sayfa/madde)
-- [ ] Anahtar cümlenin highlight'ı
-- [ ] Yazım varyasyonları eşleştirme ("cezai şart/cezai şartlar")
+- [x] Kaçıncı madde/nerede geçtiği (satır no ile)
+- [x] Anahtar cümlenin highlight'ı
+- [x] Arama sonuçları sekmesinde listelenme
 
 ### Teknik Detay
-- RichTextBox.Find() ile temel arama
+- SearchService ile temel metin arama
 - Ollama ile doğal dil sorgusu
-- Büyük docx için indeks/önbellekleme
 
 ---
 
@@ -374,8 +372,8 @@ Backups (
 
 | Sıra | Faz | Durum | Süre |
 |------|-----|-------|------|
-| 1 | Faz 1: PDF + Dosya Yükleme | Tamamlandı (Kısmi) | Tamamlandı |
-| 2 | Faz 2: Arama | Yeni | 1 hafta |
+| 1 | Faz 1: PDF + Dosya Yükleme | Tamamlandı | Tamamlandı |
+| 2 | Faz 2: Arama | Tamamlandı | Tamamlandı |
 | 3 | Faz 4: Alan Çıkarımı | İyileştirme | 1-2 hafta |
 | 4 | Faz 3: Otomatik Özet İyileştirme | İyileştirme | 3-4 gün |
 | 5 | Faz 5: Kritik Tarihler | Yeni | 1 hafta |

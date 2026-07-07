@@ -115,6 +115,15 @@ namespace ContractManagementSystem_CMS_
             btnSummarize.Click += btnSummarize_Click;
         }
 
+        private void txtSearchQuery_KeyDown(object? sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                e.SuppressKeyPress = true;
+                btnSearch.PerformClick();
+            }
+        }
+
         private async void btnSearch_Click(object? sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(richTextBoxViewContract.Text))
@@ -168,10 +177,10 @@ namespace ContractManagementSystem_CMS_
 
                 foreach (var result in results)
                 {
-                    dgvSearchResults.Rows.Add(result.Index, result.MatchedText, result.LineNumber, result.Context);
+                    dgvSearchResults.Rows.Add(result.Index, result.MatchedText, result.SearchType, result.LineNumber, result.Context);
                 }
 
-                lblSearchStatus.Text = $"{results.Count} sonuç bulundu ({searchType})";
+                lblSearchStatus.Text = $"{results.Count} sonuç";
 
                 if (results.Count > 0 && searchType != "Doğal Dil")
                 {
@@ -189,7 +198,7 @@ namespace ContractManagementSystem_CMS_
             }
             catch (Exception ex)
             {
-                lblSearchStatus.Text = "Arama hatası: " + ex.Message;
+                lblSearchStatus.Text = "Hata: " + ex.Message;
             }
             finally
             {
