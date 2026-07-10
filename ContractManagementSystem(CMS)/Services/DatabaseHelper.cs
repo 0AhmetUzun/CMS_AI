@@ -136,6 +136,34 @@ namespace ContractManagementSystem_CMS_.Services
                         Severity INT NOT NULL DEFAULT 0,
                         CONSTRAINT FK_Rules_ContractTypes FOREIGN KEY (TypeId) REFERENCES ContractTypes(Id)
                     );
+                END;
+
+                IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Contracts')
+                BEGIN
+                    CREATE TABLE Contracts (
+                        Id INT IDENTITY(1,1) PRIMARY KEY,
+                        FileName NVARCHAR(255) NOT NULL,
+                        FilePath NVARCHAR(500),
+                        Content NVARCHAR(MAX),
+                        TypeName NVARCHAR(100),
+                        RiskScore INT DEFAULT 0,
+                        CreatedAt DATETIME DEFAULT GETDATE(),
+                        UpdatedAt DATETIME DEFAULT GETDATE()
+                    );
+                END;
+
+                IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'ContractExtractions')
+                BEGIN
+                    CREATE TABLE ContractExtractions (
+                        Id INT IDENTITY(1,1) PRIMARY KEY,
+                        ContractId INT NOT NULL,
+                        FieldName NVARCHAR(100) NOT NULL,
+                        FieldValue NVARCHAR(500),
+                        PreviousValue NVARCHAR(500),
+                        IsManuallyEdited BIT DEFAULT 0,
+                        LastModifiedAt DATETIME DEFAULT GETDATE(),
+                        FOREIGN KEY (ContractId) REFERENCES Contracts(Id)
+                    );
                 END;";
         }
 
@@ -154,12 +182,79 @@ namespace ContractManagementSystem_CMS_.Services
                     {
                         connection.Open();
                     }
+                    // Mevcut veritabanında eksik tabloları kontrol et ve ekle
+                    EnsureTablesExist();
                 }
                 catch
                 {
                     CreateDatabase();
                     RunSetupScript();
                 }
+            }
+        }
+
+        private static void EnsureTablesExist()
+        {
+            try
+            {
+                using (var connection = new SqlConnection(GetConnectionString()))
+                {
+                    connection.Open();
+
+                    // Contracts tablosu var mı kontrol et
+                    string checkContracts = "SELECT COUNT(*) FROM sys.tables WHERE name = 'Contracts'";
+                    using (var cmd = new SqlCommand(checkContracts, connection))
+                    {
+                        int exists = (int)cmd.ExecuteScalar();
+                        if (exists == 0)
+                        {
+                            string createContracts = @"
+                                CREATE TABLE Contracts (
+                                    Id INT IDENTITY(1,1) PRIMARY KEY,
+                                    FileName NVARCHAR(255) NOT NULL,
+                                    FilePath NVARCHAR(500),
+                                    Content NVARCHAR(MAX),
+                                    TypeName NVARCHAR(100),
+                                    RiskScore INT DEFAULT 0,
+                                    CreatedAt DATETIME DEFAULT GETDATE(),
+                                    UpdatedAt DATETIME DEFAULT GETDATE()
+                                )";
+                            using (var createCmd = new SqlCommand(createContracts, connection))
+                            {
+                                createCmd.ExecuteNonQuery();
+                            }
+                        }
+                    }
+
+                    // ContractExtractions tablosu var mı kontrol et
+                    string checkExtractions = "SELECT COUNT(*) FROM sys.tables WHERE name = 'ContractExtractions'";
+                    using (var cmd = new SqlCommand(checkExtractions, connection))
+                    {
+                        int exists = (int)cmd.ExecuteScalar();
+                        if (exists == 0)
+                        {
+                            string createExtractions = @"
+                                CREATE TABLE ContractExtractions (
+                                    Id INT IDENTITY(1,1) PRIMARY KEY,
+                                    ContractId INT NOT NULL,
+                                    FieldName NVARCHAR(100) NOT NULL,
+                                    FieldValue NVARCHAR(500),
+                                    PreviousValue NVARCHAR(500),
+                                    IsManuallyEdited BIT DEFAULT 0,
+                                    LastModifiedAt DATETIME DEFAULT GETDATE(),
+                                    FOREIGN KEY (ContractId) REFERENCES Contracts(Id)
+                                )";
+                            using (var createCmd = new SqlCommand(createExtractions, connection))
+                            {
+                                createCmd.ExecuteNonQuery();
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.WriteLine($"[DatabaseHelper] Tablo kontrol hatası: {ex.Message}");
             }
         }
     }

@@ -240,6 +240,74 @@ Kısa ve net yanıt ver. Türkçe yanıt ver.";
             return await SendChatMessageAsync(systemPrompt, userMessage);
         }
 
+        public async Task<Dictionary<string, string>> ExtractFieldsAsync(string contractText, string contractType)
+        {
+            string systemPrompt = @"Sen bir sözleşme analiz uzmanısın. Verilen sözleşmeden yapılandırılmış bilgileri çıkar ve şu formatta JSON döndür:
+
+{
+  ""BaslangicTarihi"": ""Sözleşme başlangıç tarihi (gg.aa.yyyy veya Metin olarak)"",
+  ""BitisTarihi"": ""Sözleşme bitiş tarihi"",
+  ""Sure"": ""Süre (örn: 12 ay, 1 yıl, Belirsiz)"",
+  ""FesihTuru"": ""Fesih türü (Olağan / Olağanüstü / Belirtilmemiş)"",
+  ""FesihBildirimSuresi"": ""Fesih bildirim süresi (örn: 30 gün)"",
+  ""Yenileme"": ""Yenileme koşulu (Otomatik / Manuel / Yok)"",
+  ""YenilemeBildirimSuresi"": ""Yenileme bildirim süresi"",
+  ""OdemeTutari"": ""Ödeme tutarı ve para birimi"",
+  ""OdemeVadesi"": ""Ödeme vadesi"",
+  ""GecikmeCezasi"": ""Gecikme cezası oranı veya tutarı"",
+  ""CezaiSart"": ""Cezai şart koşulları"",
+  ""Teminat"": ""Teminat türü ve tutarı"",
+  ""SLA"": ""SLA koşulları (varsa)""
+}
+
+Eğer bir bilgi sözleşmede bulunamıyorsa ""Bulunamadı"" yaz. Türkçe yanıt ver. Sadece JSON döndür.";
+
+            string userMessage = $"Sözleşme Türü: {contractType}\n\nSözleşme İçeriği:\n{contractText}";
+            string response = await SendChatMessageAsync(systemPrompt, userMessage);
+
+            return ParseExtractionJson(response);
+        }
+
+        private Dictionary<string, string> ParseExtractionJson(string response)
+        {
+            var result = new Dictionary<string, string>();
+            string[] fieldNames = {
+                "BaslangicTarihi", "BitisTarihi", "Sure", "FesihTuru",
+                "FesihBildirimSuresi", "Yenileme", "YenilemeBildirimSuresi",
+                "OdemeTutari", "OdemeVadesi", "GecikmeCezasi", "CezaiSart",
+                "Teminat", "SLA"
+            };
+
+            try
+            {
+                var cleaned = CleanJsonResponse(response);
+                using var doc = JsonDocument.Parse(cleaned);
+                var root = doc.RootElement;
+
+                foreach (var field in fieldNames)
+                {
+                    if (root.TryGetProperty(field, out var value))
+                    {
+                        result[field] = value.GetString() ?? "Bulunamadı";
+                    }
+                    else
+                    {
+                        result[field] = "Bulunamadı";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine($"[AIService] Extraction JSON parse hatası: {ex.Message}");
+                foreach (var field in fieldNames)
+                {
+                    result[field] = "Bulunamadı";
+                }
+            }
+
+            return result;
+        }
+
         private async Task<string> SendChatMessageAsync(string systemPrompt, string userMessage)
         {
             var request = new

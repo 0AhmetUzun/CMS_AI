@@ -20,12 +20,15 @@ namespace ContractManagementSystem_CMS_
         private readonly ExportService _exportService;
         private readonly AIService _aiService;
         private readonly SearchService _searchService;
+        private readonly ExtractionService _extractionService;
+        private readonly ContractService _contractService;
 
         private List<Rules> _activeRules = new List<Rules>();
         private string _selectedFilePath = "";
         private AnalysisResult? _lastAnalysisResult = null;
         private AIService.AIAnalysisResult? _lastAIResult = null;
         private List<SearchResult> _lastSearchResults = new List<SearchResult>();
+        private int _currentContractId = 0;
 
         public MainScreen()
         {
@@ -36,6 +39,8 @@ namespace ContractManagementSystem_CMS_
             _exportService = new ExportService();
             _aiService = new AIService();
             _searchService = new SearchService();
+            _extractionService = new ExtractionService();
+            _contractService = new ContractService();
 
             ApplyThemeToControls();
             InitializeEventHandlers();
@@ -276,31 +281,6 @@ namespace ContractManagementSystem_CMS_
         {
             if (comboboxContractType.SelectedValue != null && int.TryParse(comboboxContractType.SelectedValue.ToString(), out int id))
                 _activeRules = _dbService.GetRulesByTypeId(id);
-        }
-
-        private void btnFileSelection_Click(object sender, EventArgs e)
-        {
-            using (OpenFileDialog ofd = new OpenFileDialog { Filter = "Tüm Sözleşme Dosyaları|*.docx;*.pdf|Word Belgesi (*.docx)|*.docx|PDF Dosyası (*.pdf)|*.pdf" })
-            {
-                if (ofd.ShowDialog() == DialogResult.OK)
-                {
-                    _selectedFilePath = ofd.FileName;
-                    try
-                    {
-                        richTextBoxViewContract.Text = _fileService.ReadDocument(_selectedFilePath);
-                        richTextBoxViewContract.ClearHighlights();
-                        dataGridViewResultScreen.Rows.Clear();
-                        dgvSearchResults.Rows.Clear();
-                        _lastAnalysisResult = null;
-                        _lastAIResult = null;
-                        rtbAIResults.Clear();
-                        rtbSummary.Clear();
-                        UIStyleHelper.ApplyModernTableTheme(dataGridViewResultScreen);
-                        UIStyleHelper.ApplyModernTableTheme(dgvSearchResults);
-                    }
-                    catch (Exception ex) { MessageBox.Show(ex.Message); }
-                }
-            }
         }
 
         private async void btnAnalyze_Click(object? sender, EventArgs e)
@@ -599,6 +579,164 @@ namespace ContractManagementSystem_CMS_
                 LoadComboBox();
                 _lastAnalysisResult = null;
             }
+        }
+
+        private void btnContractManagement_Click(object sender, EventArgs e)
+        {
+            using (var contractListForm = new ContractListForm())
+            {
+                if (contractListForm.ShowDialog() == DialogResult.OK)
+                {
+                    var selected = contractListForm.SelectedContract;
+                    if (selected != null)
+                    {
+                        LoadContractToMainScreen(selected);
+                    }
+                }
+            }
+        }
+
+        private void LoadContractToMainScreen(ContractListItem contract)
+        {
+            try
+            {
+                // Sözleşme türünü seç
+                for (int i = 0; i < comboboxContractType.Items.Count; i++)
+                {
+                    var item = comboboxContractType.Items[i] as ContractTypes;
+                    if (item?.TypeName == contract.TypeName)
+                    {
+                        comboboxContractType.SelectedIndex = i;
+                        break;
+                    }
+                }
+
+                // Dosya içeriğini yükle (eğer dosya hâlâ mevcutsa)
+                if (!string.IsNullOrEmpty(contract.FilePath) && File.Exists(contract.FilePath))
+                {
+                    _selectedFilePath = contract.FilePath;
+                    richTextBoxViewContract.Text = _fileService.ReadDocument(_selectedFilePath);
+
+                    // Önceki sonuçları temizle
+                    richTextBoxViewContract.ClearHighlights();
+                    dataGridViewResultScreen.Rows.Clear();
+                    dgvSearchResults.Rows.Clear();
+                    _lastAnalysisResult = null;
+                    _lastAIResult = null;
+                    rtbAIResults.Clear();
+                    rtbSummary.Clear();
+                    rtbExtractions.Clear();
+                    _currentContractId = contract.Id;
+
+                    // Mevcut çıkarılan alanları yükle
+                    var extractions = _extractionService.GetExtractions(contract.Id);
+                    if (extractions.Any())
+                    {
+                        var extractionDict = extractions.ToDictionary(e => e.FieldName, e => e.FieldValue);
+                        DisplayExtractions(extractionDict);
+                    }
+
+                    lblAIStatus.Text = $"Yüklenen: {contract.FileName}";
+                    lblAIStatus.ForeColor = UIStyleHelper.AccentGreen;
+                }
+                else
+                {
+                    MessageBox.Show("Sözleşme dosyası bulunamadı.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Sözleşme yüklenirken hata oluştu: {ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async void btnExtractFields_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(richTextBoxViewContract.Text))
+            {
+                MessageBox.Show("Lütfen bir sözleşme yükleyin.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            try
+            {
+                btnExtractFields.Enabled = false;
+                btnExtractFields.Text = "AI ile çıkarılıyor...";
+                progressAI.Visible = true;
+                progressAI.Style = ProgressBarStyle.Marquee;
+
+                lblAIStatus.Text = "AI ile alan çıkarma yapılıyor...";
+                lblAIStatus.ForeColor = UIStyleHelper.AccentPurple;
+
+                var extractions = await _aiService.ExtractFieldsAsync(
+                    richTextBoxViewContract.Text,
+                    comboboxContractType.Text);
+
+                if (_currentContractId == 0)
+                {
+                    _currentContractId = _contractService.CreateContract(
+                        Path.GetFileName(_selectedFilePath),
+                        _selectedFilePath,
+                        richTextBoxViewContract.Text,
+                        comboboxContractType.Text,
+                        (int)(_lastAnalysisResult?.TotalScore ?? 0));
+                }
+
+                _extractionService.SaveExtractionsWithChanges(_currentContractId, extractions);
+
+                tabResults.SelectedTab = tabPageExtractions;
+                DisplayExtractions(extractions);
+
+                lblAIStatus.Text = "Alan çıkarma tamamlandı";
+                lblAIStatus.ForeColor = UIStyleHelper.AccentGreen;
+
+                MessageBox.Show(
+                    "AI ile alan çıkarma işlemi tamamlandı.\n\nSonuçlar 'Çıkarılan Alanlar' sekmesinde görüntülenebilir.",
+                    "Başarılı",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                lblAIStatus.Text = "Hata oluştu";
+                lblAIStatus.ForeColor = UIStyleHelper.AccentRed;
+                MessageBox.Show($"Alan çıkarma sırasında hata oluştu: {ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                progressAI.Visible = false;
+                btnExtractFields.Enabled = true;
+                btnExtractFields.Text = "🤖 Alan Çıkar";
+            }
+        }
+
+        private void DisplayExtractions(Dictionary<string, string> extractions)
+        {
+            rtbExtractions.Clear();
+
+            rtbExtractions.SelectionFont = new Font("Segoe UI", 13f, FontStyle.Bold);
+            rtbExtractions.SelectionColor = UIStyleHelper.AccentBlue;
+            rtbExtractions.AppendText("ÇIKARILAN ALANLAR\n");
+            rtbExtractions.AppendText("═".PadRight(45, '═') + "\n\n");
+
+            foreach (var kvp in extractions)
+            {
+                string displayName = _extractionService.GetFieldDisplayName(kvp.Key);
+                bool found = kvp.Value != "Bulunamadı" && !string.IsNullOrWhiteSpace(kvp.Value);
+
+                rtbExtractions.SelectionFont = new Font("Segoe UI", 10f, FontStyle.Bold);
+                rtbExtractions.SelectionColor = found ? UIStyleHelper.AccentGreen : UIStyleHelper.AccentOrange;
+                rtbExtractions.AppendText($"{displayName}\n");
+
+                rtbExtractions.SelectionFont = new Font("Segoe UI", 9.5f);
+                rtbExtractions.SelectionColor = found ? UIStyleHelper.PrimaryText : UIStyleHelper.SecondaryText;
+                rtbExtractions.AppendText($"  {kvp.Value}\n\n");
+            }
+
+            rtbExtractions.SelectionFont = new Font("Segoe UI", 8f, FontStyle.Italic);
+            rtbExtractions.SelectionColor = UIStyleHelper.MutedText;
+            rtbExtractions.AppendText("─".PadRight(40, '─') + "\n");
+            rtbExtractions.AppendText("Düzenlemek için sözleşme detay formunu kullanın.\n");
         }
 
         private void richTextBoxViewContract_TextChanged(object sender, EventArgs e)

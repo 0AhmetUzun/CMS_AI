@@ -21,6 +21,36 @@ BEGIN
 END;
 GO
 
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Contracts')
+BEGIN
+    CREATE TABLE Contracts (
+        Id INT IDENTITY(1,1) PRIMARY KEY,
+        FileName NVARCHAR(255) NOT NULL,
+        FilePath NVARCHAR(500),
+        Content NVARCHAR(MAX),
+        TypeName NVARCHAR(100),
+        RiskScore INT DEFAULT 0,
+        CreatedAt DATETIME DEFAULT GETDATE(),
+        UpdatedAt DATETIME DEFAULT GETDATE()
+    );
+END;
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'ContractExtractions')
+BEGIN
+    CREATE TABLE ContractExtractions (
+        Id INT IDENTITY(1,1) PRIMARY KEY,
+        ContractId INT NOT NULL,
+        FieldName NVARCHAR(100) NOT NULL,
+        FieldValue NVARCHAR(500),
+        PreviousValue NVARCHAR(500),
+        IsManuallyEdited BIT DEFAULT 0,
+        LastModifiedAt DATETIME DEFAULT GETDATE(),
+        FOREIGN KEY (ContractId) REFERENCES Contracts(Id)
+    );
+END;
+GO
+
 IF NOT EXISTS (SELECT * FROM ContractTypes)
 BEGIN
     INSERT INTO ContractTypes (TypeName) VALUES
