@@ -16,9 +16,7 @@ Bireysel sözleşme yönetimi: yükleme, arama, analiz, özetleme, takip ve rapo
 - **Faz 3:** Otomatik Özet (Executive Summary) ✅
 - **Faz 4:** Madde/Alan Çıkarımı (Structured Extraction) ✅
 - **Faz 5:** Kritik Tarihler Kartı + Hatırlatıcı ✅
-
-### Devam Eden Fazlar
-- **Faz 6:** Risk/Uyarılar Kontrol Listesi (Kısmen mevcut)
+- **Faz 6:** Risk/Uyarılar Kontrol Listesi (Kapsam daraltıldı + araştırmaya dayalı genişletildi) ✅
 
 ### Henüz Başlanmayan Fazlar
 - **Faz 7:** Versiyon Takibi + İki Sürüm Karşılaştırma
@@ -34,7 +32,7 @@ Bireysel sözleşme yönetimi: yükleme, arama, analiz, özetleme, takip ve rapo
 ### Tamamlanan Özellikler
 - [x] .docx dosyası yükleme (buton + sürükle-bırak)
 - [x] PDF dosyası yükleme (sürükle-bırak)
-- [x] 4 sözleşme tipi (Kira, İş, Satış, Danışmanlık)
+- [x] 10 sözleşme tipi (Kira, İş, Satış, Danışmanlık, Hizmet, Ödünç/Kredi, Sigorta, Bayilik, Gizlilik NDA, Abonelik)
 - [x] Kural tabanlı analiz (regex pattern matching)
 - [x] Risk puanı hesaplama (100 - ceza puanları)
 - [x] AI analizi (Ollama + qwen2.5:7b)
@@ -186,21 +184,31 @@ CREATE TABLE ContractExtractions (
 ---
 
 ## Faz 6: Risk/Uyarılar Kontrol Listesi
-**Durum:** Kısmen mevcut | **Öncelik:** Orta
+**Durum:** Tamamlandı (kapsam daraltıldı + araştırmaya dayalı genişletildi) | **Öncelik:** Orta | **Tamamlanma Tarihi:** Temmuz 2026
+
+### Yaklaşım
+Karmaşık bir "Risk Kontrol" sekmesi / "İncelendi" işaretleme UI'ı yapılmadı. Bunun yerine Faz 6'nın
+**tespit** işlevi, mevcut kanallardan (Kural Analizi + AI Analizi sekmeleri) karşılandı:
+- Sözleşme türü bazında zenginleştirilmiş `Rules` veritabanı (regex, deterministik).
+- Güçlendirilmiş AI prompt (red-flag, çelişki, belirsizlik, TKHK/TBK özel maddeler).
 
 ### Mevcut
 - [x] Kural tabanlı risk tespiti (AnalysisEngine)
 - [x] Risk puanı hesaplama
 
-### Eklenecekler
-- [ ] Belirsiz süre tespiti ("Süre TBD", net tarih yok)
-- [ ] Belirsiz fesih tespiti (bildirim süresi yok)
-- [ ] Otomatik yenileme kontrolü (iptal bildirimi yoksa)
-- [ ] Aşırı cezai şart kontrolü
-- [ ] Çelişki kontrolü (fesih vs yenileme süre uyuşmazlığı)
-- [ ] Ödeme belirsizliği ("Eylem gerçekleştiğinde" gibi ifadeler)
-- [ ] Risk başlığı + kısa açıklama + ilgili madde linki
-- [ ] "İncelendi" / "Düzeltildi" işaretleme
+### Eklenenler (araştırmaya dayalı — TermScout/Sirion/BRAVE Legal + TBK 6098 / TKHK)
+- [x] Sözleşme türleri 4 → 10 çıkarıldı (Hizmet, Ödünç/Kredi, Sigorta, Bayilik, Gizlilik NDA, Abonelik)
+- [x] Tür bazlı ~44 yeni kural (`DatabaseHelper.SeedDefaultData` ile idempotent tohumlanır)
+- [x] Belirsiz süre / belirsiz fesih → zorunlu kural desenleri
+- [x] Otomatik yenileme uyarısı → yasaklı kural (özellikle Abonelik'te kritik red flag)
+- [x] Ödeme belirsizliği → yasaklı kural (ör. "eylem gerçekleştiğinde")
+- [x] AI prompt: aşırı cezai şart, fesih-yenileme çelişkisi, muğlak ifadeler, sınırsız sorumluluk, haksız şart/cayma hakkı (TKHK)
+- [x] AI `details.content` alanına ilgili madde alıntısı eklenmesi (kısmi "madde linki")
+
+### Kapsam Dışı (bilinçli olarak atlandı — UI karmaşası engellendi)
+- [x] Ayrı "Risk Kontrol" sekmesi
+- [x] "İncelendi" / "Düzeltildi" işaretleme UI'ı
+- [x] Not: "Aşırı cezai şart" ve "çelişki" kontrolleri saf regex ile ifade edilemediği için AI tarafından yakalanır (Ollama kapalıyken bu ikisi atlanır; deterministik kurallar her zaman çalışır).
 
 ---
 
@@ -429,7 +437,7 @@ Backups (
 | 3 | Faz 4: Alan Çıkarımı | Tamamlandı | Tamamlandı |
 | 4 | Faz 3: Otomatik Özet İyileştirme | Tamamlandı | Tamamlandı |
 | 5 | Faz 5: Kritik Tarihler | Tamamlandı | Tamamlandı |
-| 6 | Faz 6: Risk Kontrolü İyileştirme | İyileştirme | 4-5 gün |
+| 6 | Faz 6: Risk Kontrolü (Rules DB + AI prompt) | Tamamlandı | Tamamlandı |
 | 7 | Faz 8: Sözleşme Şablonları | Yeni | 1 hafta |
 | 8 | Faz 7: Versiyon Takibi | Yeni | 1-2 hafta |
 | 9 | Faz 9: Export İyileştirme | İyileştirme | 3-4 gün |

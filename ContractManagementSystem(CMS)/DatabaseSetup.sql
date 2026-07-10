@@ -73,7 +73,13 @@ BEGIN
     ('Kira Sozlesmesi'),
     ('Is Sozlesmesi'),
     ('Satis Sozlesmesi'),
-    ('Danismanlik Sozlesmesi');
+    ('Danismanlik Sozlesmesi'),
+    ('Hizmet Sozlesmesi'),
+    ('Odunc Kredi Sozlesmesi'),
+    ('Sigorta Sozlesmesi'),
+    ('Bayilik Sozlesmesi'),
+    ('Gizlilik NDA Sozlesmesi'),
+    ('Abonelik Uyelik Sozlesmesi');
 END;
 GO
 

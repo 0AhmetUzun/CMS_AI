@@ -77,6 +77,17 @@ namespace ContractManagementSystem_CMS_.Services
   ]
 }
 
+ÖNEMLİ - Aşağıdaki riskleri MUTLAKA tespit et ve details dizisine ekle (her biri için risk seviyesini Düşük/Orta/Yüksek/Kritik olarak belirt):
+- Belirsiz süre/tarih: net başlangıç veya bitiş tarihi yoksa.
+- Aşırı cezai şart veya orantısız gecikme cezası: yüksek yüzde/yürürlükteki sınırların üzerinde tutar.
+- Çelişki: fesih bildirim süresi ile yenileme bildirim süresi birbiriyle uyumsuzsa; ya da ödeme vadesi ile teslim koşulu çelişiyorsa.
+- Otomatik yenileme varsa ve iptal/çıkış bildirim koşulu bulunmuyorsa (zor iptalli otomatik yenileme).
+- Ödeme koşulunun muğlak olması: ""eylem gerçekleştiğinde"", ""uygun gördüğü şekilde"", ""makul süre"" gibi ifadeler.
+- Sınırsız sorumluluk, kontrol dışı tazminat (indemnification), ""for convenience"" geniş fesih hakkı.
+- Kişisel kefalet, aşırı/uzun gizlilik veya aşırı rekabet yasağı.
+- Türkiye özel: haksız şart (TKHK m.5), cayma hakkı eksikliği, ayıp sorumluluğu (2 yıl), kira artışının TÜFE ile sınırlı olmaması.
+Her details öğesinde ""content"" alanına ilgili maddenin SÖZÜNÜ DOĞRUDAN alıntıla (kaynak gösterimi).
+
 Sadece JSON döndür, başka bir şey yazma. Türkçe yanıt ver.";
 
             string userMessage = $"Sözleşme Türü: {contractType}\n\nSözleşme İçeriği:\n{contractText}";
@@ -147,7 +158,9 @@ Sadece JSON döndür, başka bir şey yazma. Türkçe yanıt ver.";
   ""risks"": [""Uyarı 1: ..."", ""Uyarı 2: ...""]
 }
 
-Kısa ve öz ol. Maksimum 5 ana başlık. Türkçe yanıt ver. Sadece JSON döndür.";
+Kısa ve öz ol. Maksimum 5 ana başlık. Türkçe yanıt ver. Sadece JSON döndür.
+
+Risklerde şunlara dikkat et: belirsiz süre/tarih, aşırı cezai şart, fesih-yenileme çelişkisi, zor iptalli otomatik yenileme, muğlak ödeme koşulu, haksız şart/cayma hakkı eksikliği (TKHK).";
 
             string response = await SendChatMessageAsync(systemPrompt, contractText);
             return ParseSummaryResponse(response);
@@ -167,7 +180,9 @@ Kısa ve öz ol. Maksimum 5 ana başlık. Türkçe yanıt ver. Sadece JSON dönd
   ""risks"": [""Risk/Uyarı 1: Açıklama"", ""Risk/Uyarı 2: ..."", ""Risk/Uyarı 3: ...""]
 }
 
-Detaylı ve kapsamlı yaz. Tüm önemli maddeleri dahil et. Türkçe yanıt ver. Sadece JSON döndür.";
+Detaylı ve kapsamlı yaz. Tüm önemli maddeleri dahil et. Türkçe yanıt ver. Sadece JSON döndür.
+
+Risklerde şunlara dikkat et: belirsiz süre/tarih, aşırı cezai şart, fesih-yenileme çelişkisi, zor iptalli otomatik yenileme, muğlak ödeme koşulu, haksız şart/cayma hakkı eksikliği (TKHK).";
 
             string response = await SendChatMessageAsync(systemPrompt, contractText);
             return ParseSummaryResponse(response);
