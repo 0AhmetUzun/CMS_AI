@@ -22,6 +22,7 @@ namespace ContractManagementSystem_CMS_.Extensions
         public static readonly Color AccentRed = Color.FromArgb(220, 53, 69);
         public static readonly Color AccentOrange = Color.FromArgb(255, 152, 0);
         public static readonly Color AccentPurple = Color.FromArgb(128, 0, 255);
+        public static readonly Color AccentTeal = Color.FromArgb(0, 184, 149);
 
         public static readonly Color BorderColor = Color.FromArgb(60, 60, 60);
         public static readonly Color HoverColor = Color.FromArgb(55, 55, 55);

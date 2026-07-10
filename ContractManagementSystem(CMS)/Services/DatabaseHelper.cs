@@ -250,6 +250,32 @@ namespace ContractManagementSystem_CMS_.Services
                             }
                         }
                     }
+
+                    // ContractDates tablosu var mı kontrol et
+                    string checkDates = "SELECT COUNT(*) FROM sys.tables WHERE name = 'ContractDates'";
+                    using (var cmd = new SqlCommand(checkDates, connection))
+                    {
+                        int exists = (int)cmd.ExecuteScalar();
+                        if (exists == 0)
+                        {
+                            string createDates = @"
+                                CREATE TABLE ContractDates (
+                                    Id INT IDENTITY(1,1) PRIMARY KEY,
+                                    ContractId INT NOT NULL,
+                                    DateType NVARCHAR(50) NOT NULL,
+                                    DateValue DATE NOT NULL,
+                                    ReminderDays INT DEFAULT 30,
+                                    IsNotified BIT DEFAULT 0,
+                                    Note NVARCHAR(500),
+                                    CreatedAt DATETIME DEFAULT GETDATE(),
+                                    FOREIGN KEY (ContractId) REFERENCES Contracts(Id)
+                                )";
+                            using (var createCmd = new SqlCommand(createDates, connection))
+                            {
+                                createCmd.ExecuteNonQuery();
+                            }
+                        }
+                    }
                 }
             }
             catch (Exception ex)

@@ -22,6 +22,7 @@ namespace ContractManagementSystem_CMS_
         private readonly SearchService _searchService;
         private readonly ExtractionService _extractionService;
         private readonly ContractService _contractService;
+        private readonly DateReminderService _dateService;
 
         private List<Rules> _activeRules = new List<Rules>();
         private string _selectedFilePath = "";
@@ -41,6 +42,7 @@ namespace ContractManagementSystem_CMS_
             _searchService = new SearchService();
             _extractionService = new ExtractionService();
             _contractService = new ContractService();
+            _dateService = new DateReminderService();
 
             ApplyThemeToControls();
             InitializeEventHandlers();
@@ -257,6 +259,37 @@ namespace ContractManagementSystem_CMS_
         {
             LoadComboBox();
             _ = InitializeAIOperationAsync();
+            CheckUpcomingDates();
+        }
+
+        private void CheckUpcomingDates()
+        {
+            try
+            {
+                var upcoming = _dateService.GetUpcomingDates(7);
+                if (upcoming.Count > 0)
+                {
+                    this.BeginInvoke(new Action(() =>
+                    {
+                        using (var popup = new UpcomingDatesForm(upcoming))
+                        {
+                            popup.ShowDialog(this);
+                        }
+                    }));
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.WriteLine($"[MainScreen] Yaklaşan tarih kontrolü hatası: {ex.Message}");
+            }
+        }
+
+        private void btnUpcomingDates_Click(object? sender, EventArgs e)
+        {
+            using (var form = new DateManagementForm())
+            {
+                form.ShowDialog(this);
+            }
         }
 
         private void LoadComboBox()
@@ -307,6 +340,7 @@ namespace ContractManagementSystem_CMS_
                 dataGridViewResultScreen.Rows.Clear();
                 rtbAIResults.Clear();
                 rtbSummary.Clear();
+                rtbExtractions.Clear();
 
                 // 1. Kural Analizi
                 lblAIStatus.Text = "Kural analizi çalıştırılıyor...";
@@ -353,6 +387,29 @@ namespace ContractManagementSystem_CMS_
                 DisplayStructuredSummary(summary, isDetailed);
                 tabResults.SelectedTab = tabPageSummary;
 
+                // 4. AI ile Alan Çıkarma
+                lblAIStatus.Text = "Ollama: Alanlar çıkarılıyor...";
+                lblAIStatus.ForeColor = UIStyleHelper.AccentPurple;
+
+                var extractions = await _aiService.ExtractFieldsAsync(
+                    richTextBoxViewContract.Text,
+                    comboboxContractType.Text);
+
+                if (_currentContractId == 0)
+                {
+                    _currentContractId = _contractService.CreateContract(
+                        Path.GetFileName(_selectedFilePath),
+                        _selectedFilePath,
+                        richTextBoxViewContract.Text,
+                        comboboxContractType.Text,
+                        (int)(_lastAnalysisResult?.TotalScore ?? 0));
+                }
+
+                _extractionService.SaveExtractionsWithChanges(_currentContractId, extractions);
+                _dateService.SaveDatesFromExtractions(_currentContractId, extractions);
+                DisplayExtractions(extractions);
+                tabResults.SelectedTab = tabPageExtractions;
+
                 // Tamamlandı
                 lblAIStatus.Text = "Ollama: Bağlı";
                 lblAIStatus.ForeColor = UIStyleHelper.AccentGreen;
@@ -367,7 +424,7 @@ namespace ContractManagementSystem_CMS_
             {
                 progressAI.Visible = false;
                 btnAnalyze.Enabled = true;
-                btnAnalyze.Text = "Sözleşmeyi Analiz Et";
+                btnAnalyze.Text = "Sözleşmeyi Tam Analiz Et";
             }
         }
 
@@ -634,6 +691,7 @@ namespace ContractManagementSystem_CMS_
                     {
                         var extractionDict = extractions.ToDictionary(e => e.FieldName, e => e.FieldValue);
                         DisplayExtractions(extractionDict);
+                        _dateService.SaveDatesFromExtractions(contract.Id, extractionDict);
                     }
 
                     lblAIStatus.Text = $"Yüklenen: {contract.FileName}";
@@ -647,66 +705,6 @@ namespace ContractManagementSystem_CMS_
             catch (Exception ex)
             {
                 MessageBox.Show($"Sözleşme yüklenirken hata oluştu: {ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private async void btnExtractFields_Click(object sender, EventArgs e)
-        {
-            if (string.IsNullOrEmpty(richTextBoxViewContract.Text))
-            {
-                MessageBox.Show("Lütfen bir sözleşme yükleyin.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            try
-            {
-                btnExtractFields.Enabled = false;
-                btnExtractFields.Text = "AI ile çıkarılıyor...";
-                progressAI.Visible = true;
-                progressAI.Style = ProgressBarStyle.Marquee;
-
-                lblAIStatus.Text = "AI ile alan çıkarma yapılıyor...";
-                lblAIStatus.ForeColor = UIStyleHelper.AccentPurple;
-
-                var extractions = await _aiService.ExtractFieldsAsync(
-                    richTextBoxViewContract.Text,
-                    comboboxContractType.Text);
-
-                if (_currentContractId == 0)
-                {
-                    _currentContractId = _contractService.CreateContract(
-                        Path.GetFileName(_selectedFilePath),
-                        _selectedFilePath,
-                        richTextBoxViewContract.Text,
-                        comboboxContractType.Text,
-                        (int)(_lastAnalysisResult?.TotalScore ?? 0));
-                }
-
-                _extractionService.SaveExtractionsWithChanges(_currentContractId, extractions);
-
-                tabResults.SelectedTab = tabPageExtractions;
-                DisplayExtractions(extractions);
-
-                lblAIStatus.Text = "Alan çıkarma tamamlandı";
-                lblAIStatus.ForeColor = UIStyleHelper.AccentGreen;
-
-                MessageBox.Show(
-                    "AI ile alan çıkarma işlemi tamamlandı.\n\nSonuçlar 'Çıkarılan Alanlar' sekmesinde görüntülenebilir.",
-                    "Başarılı",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
-            }
-            catch (Exception ex)
-            {
-                lblAIStatus.Text = "Hata oluştu";
-                lblAIStatus.ForeColor = UIStyleHelper.AccentRed;
-                MessageBox.Show($"Alan çıkarma sırasında hata oluştu: {ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            finally
-            {
-                progressAI.Visible = false;
-                btnExtractFields.Enabled = true;
-                btnExtractFields.Text = "🤖 Alan Çıkar";
             }
         }
 

@@ -1,11 +1,35 @@
 # CMS_AI - Sözleşme Yönetim Sistemi Geliştirme Planı (Final)
 
+> **Son Güncelleme:** Temmuz 2026
+> **Şu anki aşama:** Faz 1-5 tamamlandı, Faz 6 ve Faz 9 kısmen mevcut. Sıradaki iş: **Faz 6 (Risk/Uyarılar Kontrol Listesi iyileştirme)** veya **Faz 8 (Sözleşme Şablonları)**.
+
 ## Proje Amacı
 Bireysel sözleşme yönetimi: yükleme, arama, analiz, özetleme, takip ve raporlama.
 
 ---
 
 ## Mevcut Durum (Zaten Yapılanlar)
+
+### Tamamlanan Fazlar
+- **Faz 1:** Dosya Yükleme + PDF Desteği ✅
+- **Faz 2:** Hızlı Arama + Doğal Dil Arama ✅
+- **Faz 3:** Otomatik Özet (Executive Summary) ✅
+- **Faz 4:** Madde/Alan Çıkarımı (Structured Extraction) ✅
+- **Faz 5:** Kritik Tarihler Kartı + Hatırlatıcı ✅
+
+### Devam Eden Fazlar
+- **Faz 6:** Risk/Uyarılar Kontrol Listesi (Kısmen mevcut)
+
+### Henüz Başlanmayan Fazlar
+- **Faz 7:** Versiyon Takibi + İki Sürüm Karşılaştırma
+- **Faz 8:** Basit Sözleşme Şablonları + Alan Doldurma
+- **Faz 9:** Dışa Aktarma (Export) İyileştirme
+- **Faz 10:** Güvenlik
+- **Faz 11:** Raporlama ve İstatistikler
+- **Faz 12:** Toplu İşlemler
+- **Faz 13:** Yedekleme Sistemi
+- **Faz 14:** OCR Desteği
+- **Faz 15:** Klavye Kısayolları
 
 ### Tamamlanan Özellikler
 - [x] .docx dosyası yükleme (buton + sürükle-bırak)
@@ -18,6 +42,10 @@ Bireysel sözleşme yönetimi: yükleme, arama, analiz, özetleme, takip ve rapo
 - [x] PDF dışa aktarma
 - [x] Kural yönetimi (CRUD)
 - [x] Dark tema UI
+- [x] Anahtar kelime araması
+- [x] Doğal dil araması
+- [x] Yapılandırılmış alan çıkarma (13 alan)
+- [x] Değişiklik takibi ve geri alma
 
 ### Kullanılan Teknolojiler
 - .NET 8.0 WinForms
@@ -28,7 +56,7 @@ Bireysel sözleşme yönetimi: yükleme, arama, analiz, özetleme, takip ve rapo
 ---
 
 ## Faz 1: Dosya Yükleme + Klasör/Etiketleme (İyileştirme)
-**Durum:** Tamamlandı (Kısmi) | **Öncelik:** Yüksek | **Tamamlanma Tarihi:** Temmuz 2026
+**Durum:** Tamamlandı | **Öncelik:** Yüksek | **Tamamlanma Tarihi:** Temmuz 2026
 
 ### Tamamlananlar
 - [x] PDF dosyası desteği (sadece .docx değil)
@@ -91,22 +119,27 @@ Bireysel sözleşme yönetimi: yükleme, arama, analiz, özetleme, takip ve rapo
 ---
 
 ## Faz 4: Madde/Alan Çıkarımı (Structured Extraction)
-**Durum:** Kısmen mevcut | **Öncelik:** Yüksek
+**Durum:** Tamamlandı | **Öncelik:** Yüksek | **Tamamlanma Tarihi:** Temmuz 2026
 
 ### Mevcut
 - [x] AI analizinde JSON çıktı var
 
-### Eklenecekler
-- [ ] Çıkarılacak alanlar:
+### Tamamlananlar
+- [x] Çıkarılacak alanlar:
   - Başlangıç/bitiş tarihi
   - Süre (12 ay, 1 yıl)
   - Fesih türleri (bildirim süresi, olağan/olağanüstü)
   - Yenileme (otomatik var mı, bildirim süresi)
   - Ödeme (tutar, para birimi, vade, gecikme cezası)
-  - Cezai şart / teminat / SLA
-- [ ] "Bu sözleşmede şu alanlar bulundu/bulunamadı" gösterimi
-- [ ] Alan boş ise kullanıcı düzenleme kutusu
-- [ ] Düzeltilen verileri kaydetme
+    - Cezai şart / teminat / SLA
+- [x] "Bu sözleşmede şu alanlar bulundu/bulunamadı" gösterimi
+- [x] Alan boş ise kullanıcı düzenleme kutusu
+- [x] Düzeltilen verileri kaydetme
+
+### Notlar
+- ExtractionService.cs ile AI tabanlı alan çıkarma uygulandı
+- ContractDetailForm.cs ile kullanıcı düzenleme arayüzü tamamlandı
+- ChangesSummaryForm.cs ile değişiklik takibi eklendi
 
 ### Veritabanı
 ```sql
@@ -123,22 +156,32 @@ CREATE TABLE ContractExtractions (
 ---
 
 ## Faz 5: Kritik Tarihler Kartı + Hatırlatıcı
-**Durum:** Hiç başlanmamış | **Öncelik:** Yüksek
+**Durum:** Tamamlandı | **Öncelik:** Yüksek | **Tamamlanma Tarihi:** Temmuz 2026
+
+### Veritabanı
+- [x] `ContractDates` tablosu eklendi (Id, ContractId, DateType, DateValue, ReminderDays, IsNotified, Note, CreatedAt)
+- [x] `DatabaseHelper.EnsureTablesExist` ile mevcut veritabanlarına otomatik uygulandı
 
 ### Kartlar
-- [ ] Yaklaşan bitiş tarihi
-- [ ] Yaklaşan fesih bildirimi son tarihi
-- [ ] Yaklaşan ödeme tarihi
-- [ ] Yenileme uyarısı
+- [x] Yaklaşan bitiş tarihi
+- [x] Yaklaşan fesih bildirimi son tarihi (Bitiş - FesihBildirimSuresi)
+- [x] Yaklaşan ödeme tarihi (Başlangıç + ÖdemeVadesi)
+- [x] Yenileme uyarısı (yenileme "Otomatik" ise, Bitiş - YenilemeBildirimSuresi)
 
 ### Mantık
-- [ ] "Bitişten X gün önce fesih mümkün" kuralı (belgeden hesapla)
-- [ ] Kalan gün sayısı gösterimi
+- [x] "Bitişten X gün önce fesih mümkün" kuralı (çıkarımlardan hesaplanır)
+- [x] Kalan gün sayısı gösterimi (renkli: kırmızı geçti, turuncu ≤7 gün, yeşil)
 
 ### Görünüm
-- [ ] Ana ekranda "Yaklaşan Tarihler" paneli
-- [ ] Aylık liste + "yarın/3 gün/7 gün" filtresi
-- [ ] Uygulama açıldığında uyarı
+- [x] Açılışta uyarı pop-up'ı: yakın tarih varsa `UpcomingDatesForm` gösterilir, yoksa normal açılır
+- [x] "📅 Yaklaşan Tarihler" butonu ile `DateManagementForm` (Kartlar + Aylık Liste sekmeleri)
+- [x] Filtreler: Yarın / 3 Gün / 7 Gün / Bu Ay / Tümü
+- [x] Manuel tarih ekleme / düzenleme / silme
+
+### Notlar
+- Tarihler AI alan çıkarımından (`ExtractionService`) otomatik türetilir, manuel düzenlemeye izin verir
+- `DateReminderService` Türkçe tarih formatlarını (gg.aa.yyyy, "15 Temmuz 2026" vb.) parse eder
+- `OdemeVadesi` somut tarih değilse ("Net 30") başlangıç tarihinden türetilir, parse edilemezse atlanır
 
 ---
 
@@ -319,6 +362,15 @@ CREATE TABLE ContractExtractions (
 
 ## Veritabanı Yapısı (Final)
 
+> **Gerçek Durum (Temmuz 2026):** `DatabaseSetup.sql` içinde şu an yalnızca şu tablolar
+> **gerçekten oluşturuluyor**: `ContractTypes`, `Rules`, `Contracts`, `ContractExtractions`.
+> Aşağıdaki "Final" şemadaki `ContractVersions`, `ContractDates`, `ContractNotes`, `Tags`,
+> `ContractTags`, `ContractTemplates`, `Backups` tabloları **henüz oluşturulmadı**; ilgili
+> fazlar (5, 7, 8, 11, 12, 13) başladığında eklenmesi gerekiyor.
+> Ayrıca mevcut `Contracts` tablosunda `PartyName`, `Status`, `Year`, `StartDate`, `EndDate`,
+> `Amount`, `Currency`, `IsSigned`, `VersionNumber` alanları yok; sadece `FilePath` ve
+> `RiskScore` alanları mevcut.
+
 ```sql
 -- Mevcut tablolar
 ContractTypes (Id, TypeName)
@@ -374,9 +426,9 @@ Backups (
 |------|-----|-------|------|
 | 1 | Faz 1: PDF + Dosya Yükleme | Tamamlandı | Tamamlandı |
 | 2 | Faz 2: Arama | Tamamlandı | Tamamlandı |
-| 3 | Faz 4: Alan Çıkarımı | İyileştirme | 1-2 hafta |
+| 3 | Faz 4: Alan Çıkarımı | Tamamlandı | Tamamlandı |
 | 4 | Faz 3: Otomatik Özet İyileştirme | Tamamlandı | Tamamlandı |
-| 5 | Faz 5: Kritik Tarihler | Yeni | 1 hafta |
+| 5 | Faz 5: Kritik Tarihler | Tamamlandı | Tamamlandı |
 | 6 | Faz 6: Risk Kontrolü İyileştirme | İyileştirme | 4-5 gün |
 | 7 | Faz 8: Sözleşme Şablonları | Yeni | 1 hafta |
 | 8 | Faz 7: Versiyon Takibi | Yeni | 1-2 hafta |
@@ -422,16 +474,19 @@ Backups (
 
 ---
 
-## Mevcut Sorunlar ve Çözümler
+## Mevcut Sorunlar ve Teknik Borç (Durum Takibi)
 
-| Sorun | Çözüm |
-|-------|-------|
-| OllamaSharp paketi kullanılmıyor | Kaldır veya HttpClient yerine kullan |
-| Select.HtmlToPdf.NetCore kullanılmıyor | Kaldır |
-| appsettings.json yok | Ekle |
-| Unit test yok | xUnit ile basit testler |
-| Hata loglama yok | Serilog veya NLog ekle |
-| Dependency injection yok | .NET 8 built-in DI kullan |
+> Aşağıdaki maddeler planın önceki sürümlerinde "çözülecek" olarak listelenmişti. Kod incelemesinde
+> (Temmuz 2026) bu maddelerin **henüz çözülmediği** tespit edildi. Gerçek durum aşağıdadır.
+
+| Sorun | Planlanan Çözüm | Gerçek Durum |
+|-------|-----------------|--------------|
+| OllamaSharp paketi kullanılmıyor | Kaldır veya HttpClient yerine kullan | ⚠️ **Açık** - Paket hâlâ `csproj`'te referanslı; kod `HttpClient` kullanıyor (AIService.cs). Kaldırılabilir. |
+| Select.HtmlToPdf.NetCore kullanılmıyor | Kaldır | ⚠️ **Açık** - Paket hâlâ `csproj`'te referanslı; ExportService `iTextSharp` kullanıyor. Kaldırılabilir. |
+| appsettings.json yok | Ekle | ⚠️ **Açık** - Yapılandırma için appsettings.json hâlâ eklenmedi. |
+| Unit test yok | xUnit ile basit testler | ⚠️ **Açık** - Hiç test projesi/ test yok. |
+| Hata loglama yok | Serilog veya NLog ekle | ⚠️ **Kısmi** - Sadece `Trace.WriteLine` ile bırakılan loglar var, merkezi loglama kütüphanesi yok. |
+| Dependency injection yok | .NET 8 built-in DI kullan | ⚠️ **Açık** - Servisler formlarda `new` ile örnekleniyor (ör. `MainScreen.cs`), DI container kullanılmıyor. |
 
 ---
 
@@ -446,14 +501,14 @@ Backups (
 - ✅ Dark tema
 
 **Eklenecekler (MVP için gerekli):**
-1. ➕ Anahtar kelime araması
-2. ➕ Yapılandırılmış alan çıkarma
-3. ➕ Kritik tarih takibi
+1. ✅ Anahtar kelime araması (Faz 2 tamamlandı)
+2. ✅ Yapılandırılmış alan çıkarma (Faz 4 tamamlandı)
+3. ✅ Kritik tarih takibi
 4. ➕ Hızlı notlar
 5. ✅ Executive Summary (Faz 3 tamamlandı)
 
 **Sonraki Aşama:**
-6. Versiyon takibi
+6. ➕ Versiyon takibi
 7. Şablonlar
 8. Export iyileştirmeleri
 9. Yedekleme

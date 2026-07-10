@@ -51,6 +51,22 @@ BEGIN
 END;
 GO
 
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'ContractDates')
+BEGIN
+    CREATE TABLE ContractDates (
+        Id INT IDENTITY(1,1) PRIMARY KEY,
+        ContractId INT NOT NULL,
+        DateType NVARCHAR(50) NOT NULL,
+        DateValue DATE NOT NULL,
+        ReminderDays INT DEFAULT 30,
+        IsNotified BIT DEFAULT 0,
+        Note NVARCHAR(500),
+        CreatedAt DATETIME DEFAULT GETDATE(),
+        FOREIGN KEY (ContractId) REFERENCES Contracts(Id)
+    );
+END;
+GO
+
 IF NOT EXISTS (SELECT * FROM ContractTypes)
 BEGIN
     INSERT INTO ContractTypes (TypeName) VALUES

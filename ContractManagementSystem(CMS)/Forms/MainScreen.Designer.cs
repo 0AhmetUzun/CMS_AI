@@ -46,7 +46,8 @@
             MaddeAdı = new DataGridViewTextBoxColumn();
             Durum = new DataGridViewTextBoxColumn();
             btnAnalyze = new Button();
-            btnExtractFields = new Button();
+            btnUpcomingDates = new Button();
+
             lblAIStatus = new Label();
             progressAI = new ProgressBar();
             lblSearchTitle = new Label();
@@ -94,7 +95,6 @@
             pnlMenu.BackColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.PrimaryBg;
             pnlMenu.Controls.Add(comboboxContractType);
             pnlMenu.Controls.Add(btnAnalyze);
-            pnlMenu.Controls.Add(btnExtractFields);
             pnlMenu.Controls.Add(lblAIStatus);
             pnlMenu.Controls.Add(progressAI);
             pnlMenu.Controls.Add(grpSummaryType);
@@ -108,6 +108,7 @@
             pnlMenu.Controls.Add(btnExport);
             pnlMenu.Controls.Add(btnContractManagement);
             pnlMenu.Controls.Add(btnManageRules);
+            pnlMenu.Controls.Add(btnUpcomingDates);
             pnlMenu.Dock = DockStyle.Fill;
             pnlMenu.Location = new Point(0, 0);
             pnlMenu.Name = "pnlMenu";
@@ -133,7 +134,7 @@
             // btnAnalyze
             // 
             btnAnalyze.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            btnAnalyze.BackColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.AccentBlue;
+            btnAnalyze.BackColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.AccentTeal;
             btnAnalyze.CausesValidation = false;
             btnAnalyze.Cursor = Cursors.Hand;
             btnAnalyze.FlatAppearance.BorderSize = 0;
@@ -144,27 +145,27 @@
             btnAnalyze.Name = "btnAnalyze";
             btnAnalyze.Size = new Size(396, 34);
             btnAnalyze.TabIndex = 2;
-            btnAnalyze.Text = "Sözleşmeyi Analiz Et";
+            btnAnalyze.Text = "Sözleşmeyi Tam Analiz Et";
             btnAnalyze.UseVisualStyleBackColor = false;
             btnAnalyze.Click += btnAnalyze_Click;
             // 
-            // btnExtractFields
+            // btnUpcomingDates
             // 
-            btnExtractFields.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            btnExtractFields.BackColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.AccentPurple;
-            btnExtractFields.CausesValidation = false;
-            btnExtractFields.Cursor = Cursors.Hand;
-            btnExtractFields.FlatAppearance.BorderSize = 0;
-            btnExtractFields.FlatStyle = FlatStyle.Flat;
-            btnExtractFields.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
-            btnExtractFields.ForeColor = Color.White;
-            btnExtractFields.Location = new Point(12, 82);
-            btnExtractFields.Name = "btnExtractFields";
-            btnExtractFields.Size = new Size(396, 34);
-            btnExtractFields.TabIndex = 3;
-            btnExtractFields.Text = "🤖 Alan Çıkar";
-            btnExtractFields.UseVisualStyleBackColor = false;
-            btnExtractFields.Click += btnExtractFields_Click;
+            btnUpcomingDates.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            btnUpcomingDates.BackColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.AccentBlue;
+            btnUpcomingDates.CausesValidation = false;
+            btnUpcomingDates.Cursor = Cursors.Hand;
+            btnUpcomingDates.FlatAppearance.BorderSize = 0;
+            btnUpcomingDates.FlatStyle = FlatStyle.Flat;
+            btnUpcomingDates.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+            btnUpcomingDates.ForeColor = Color.White;
+            btnUpcomingDates.Location = new Point(12, 84);
+            btnUpcomingDates.Name = "btnUpcomingDates";
+            btnUpcomingDates.Size = new Size(396, 30);
+            btnUpcomingDates.TabIndex = 3;
+            btnUpcomingDates.Text = "📅 Yaklaşan Tarihler";
+            btnUpcomingDates.UseVisualStyleBackColor = false;
+            btnUpcomingDates.Click += btnUpcomingDates_Click;
             // 
             // lblAIStatus
             // 
@@ -662,7 +663,6 @@
         private Panel pnlMenu;
         private ComboBox comboboxContractType;
         private Button btnAnalyze;
-        private Button btnExtractFields;
         private Label lblAIStatus;
         private ProgressBar progressAI;
         private GroupBox grpSummaryType;
@@ -682,6 +682,7 @@
         private Button btnExport;
         private Button btnContractManagement;
         private Button btnManageRules;
+        private Button btnUpcomingDates;
         private RichTextBox richTextBoxViewContract;
         private DataGridViewTextBoxColumn MaddeAdı;
         private DataGridViewTextBoxColumn Durum;
