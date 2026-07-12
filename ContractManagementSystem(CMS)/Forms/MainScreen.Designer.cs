@@ -20,6 +20,12 @@
             DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
             DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
             DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
+            this.components = new System.ComponentModel.Container();
+            this.mainToolTip = new ToolTip(this.components);
+            this.mainToolTip.ShowAlways = true;
+            this.mainToolTip.AutoPopDelay = 5000;
+            this.mainToolTip.InitialDelay = 400;
+            this.mainToolTip.ReshowDelay = 100;
             pnlMenu = new Panel();
             btnManageRules = new Button();
             btnExport = new Button();
@@ -48,6 +54,7 @@
             Durum = new DataGridViewTextBoxColumn();
             btnAnalyze = new Button();
             btnUpcomingDates = new Button();
+            btnSecurity = new Button();
 
             lblAIStatus = new Label();
             progressAI = new ProgressBar();
@@ -111,6 +118,7 @@
             pnlMenu.Controls.Add(btnTemplates);
             pnlMenu.Controls.Add(btnManageRules);
             pnlMenu.Controls.Add(btnUpcomingDates);
+            pnlMenu.Controls.Add(btnSecurity);
             pnlMenu.Dock = DockStyle.Fill;
             pnlMenu.Location = new Point(0, 0);
             pnlMenu.Name = "pnlMenu";
@@ -585,7 +593,7 @@
             btnContractManagement.FlatStyle = FlatStyle.Flat;
             btnContractManagement.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
             btnContractManagement.ForeColor = Color.White;
-            btnContractManagement.Location = new Point(108, 666);
+            btnContractManagement.Location = new Point(94, 666);
             btnContractManagement.Name = "btnContractManagement";
             btnContractManagement.Size = new Size(150, 32);
             btnContractManagement.TabIndex = 7;
@@ -602,7 +610,7 @@
             btnTemplates.FlatStyle = FlatStyle.Flat;
             btnTemplates.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
             btnTemplates.ForeColor = Color.White;
-            btnTemplates.Location = new Point(262, 666);
+            btnTemplates.Location = new Point(202, 666);
             btnTemplates.Name = "btnTemplates";
             btnTemplates.Size = new Size(112, 32);
             btnTemplates.TabIndex = 8;
@@ -628,6 +636,25 @@
             btnManageRules.Text = "\u2699";
             btnManageRules.UseVisualStyleBackColor = false;
             btnManageRules.Click += btnManageRules_Click;
+            // 
+            // btnSecurity
+            // 
+            btnSecurity.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            btnSecurity.BackColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.AccentBg;
+            btnSecurity.CausesValidation = false;
+            btnSecurity.Cursor = Cursors.Hand;
+            btnSecurity.FlatAppearance.BorderColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.BorderColor;
+            btnSecurity.FlatAppearance.BorderSize = 1;
+            btnSecurity.FlatStyle = FlatStyle.Flat;
+            btnSecurity.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
+            btnSecurity.ForeColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.PrimaryText;
+            btnSecurity.Location = new Point(298, 666);
+            btnSecurity.Name = "btnSecurity";
+            btnSecurity.Size = new Size(78, 32);
+            btnSecurity.TabIndex = 12;
+            btnSecurity.Text = "🔒 Güvenlik";
+            btnSecurity.UseVisualStyleBackColor = false;
+            btnSecurity.Click += btnSecurity_Click;
             // 
             // richTextBoxViewContract
             // 
@@ -703,7 +730,9 @@
         private Button btnTemplates;
         private Button btnManageRules;
         private Button btnUpcomingDates;
+        private Button btnSecurity;
         private RichTextBox richTextBoxViewContract;
+        private ToolTip mainToolTip;
         private DataGridViewTextBoxColumn MaddeAdı;
         private DataGridViewTextBoxColumn Durum;
         private Label lblSearchTitle;

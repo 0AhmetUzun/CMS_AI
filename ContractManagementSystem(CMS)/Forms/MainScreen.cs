@@ -23,6 +23,7 @@ namespace ContractManagementSystem_CMS_
         private readonly ExtractionService _extractionService;
         private readonly ContractService _contractService;
         private readonly DateReminderService _dateService;
+        private readonly SecurityService.IdleMonitor _idleMonitor = new SecurityService.IdleMonitor();
 
         private List<Rules> _activeRules = new List<Rules>();
         private string _selectedFilePath = "";
@@ -48,6 +49,46 @@ namespace ContractManagementSystem_CMS_
             InitializeEventHandlers();
             SetupTabControlTheme();
             InitializeSearchControls();
+            SetupToolTips();
+        }
+
+        private void SetupToolTips()
+        {
+            mainToolTip.SetToolTip(comboboxContractType, "Sözleşme türü seçin");
+            mainToolTip.SetToolTip(btnAnalyze, "Sözleşmeyi tam analiz et (kural + AI + özet + alan çıkarımı)");
+            mainToolTip.SetToolTip(btnSearch, "Ara (Ctrl+F)");
+            mainToolTip.SetToolTip(txtSearchQuery, "Arama sorgusu girin  •  Ctrl+F ile odaklanır  •  Enter ile ara");
+            mainToolTip.SetToolTip(btnClearSearch, "Arama sonuçlarını temizle");
+            mainToolTip.SetToolTip(cmbSearchType, "Arama türü: Anahtar kelime veya doğal dil");
+            mainToolTip.SetToolTip(btnExport, "Analiz raporunu PDF olarak aktar (Ctrl+E)");
+            mainToolTip.SetToolTip(btnContractManagement, "Sözleşme yönetimi / yeni sözleşme yükle (Ctrl+N)");
+            mainToolTip.SetToolTip(btnTemplates, "Sözleşme şablonları");
+            mainToolTip.SetToolTip(btnManageRules, "Kural yönetimi");
+            mainToolTip.SetToolTip(btnUpcomingDates, "Yaklaşan tarihler ve hatırlatıcılar");
+            mainToolTip.SetToolTip(btnSecurity, "Güvenlik ayarları (PIN / boşta kilit)");
+            mainToolTip.SetToolTip(rbDetailedSummary, "Detaylı özet (1 sayfa)");
+            mainToolTip.SetToolTip(rbBriefSummary, "Kısa özet (5 madde)");
+        }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData == (Keys.Control | Keys.F))
+            {
+                txtSearchQuery.Focus();
+                txtSearchQuery.SelectAll();
+                return true;
+            }
+            if (keyData == (Keys.Control | Keys.E))
+            {
+                btnExport.PerformClick();
+                return true;
+            }
+            if (keyData == (Keys.Control | Keys.N))
+            {
+                btnContractManagement.PerformClick();
+                return true;
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
         }
 
         private void InitializeSearchControls()
@@ -260,6 +301,34 @@ namespace ContractManagementSystem_CMS_
             LoadComboBox();
             _ = InitializeAIOperationAsync();
             CheckUpcomingDates();
+            _idleMonitor.Start(ShowIdleLock);
+        }
+
+        private void ShowIdleLock()
+        {
+            if (this.InvokeRequired)
+            {
+                this.BeginInvoke(new Action(ShowIdleLock));
+                return;
+            }
+
+            using (var lockScreen = new LockScreenForm(LockMode.Idle))
+            {
+                if (lockScreen.ShowDialog(this) != DialogResult.OK)
+                {
+                    Application.Exit();
+                    return;
+                }
+            }
+            _idleMonitor.Reset();
+        }
+
+        private void btnSecurity_Click(object? sender, EventArgs e)
+        {
+            using (var securityForm = new PinSetupForm())
+            {
+                securityForm.ShowDialog(this);
+            }
         }
 
         private void CheckUpcomingDates()

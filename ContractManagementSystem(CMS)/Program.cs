@@ -1,5 +1,6 @@
 using System;
 using System.Windows.Forms;
+using ContractManagementSystem_CMS_.Forms;
 using ContractManagementSystem_CMS_.Services;
 
 namespace ContractManagementSystem_CMS_
@@ -24,6 +25,15 @@ namespace ContractManagementSystem_CMS_
                     MessageBoxIcon.Error
                 );
                 return;
+            }
+
+            if (SecurityService.IsPinEnabled())
+            {
+                using (var lockScreen = new LockScreenForm(LockMode.Startup))
+                {
+                    if (lockScreen.ShowDialog() != DialogResult.OK)
+                        return;
+                }
             }
 
             Application.Run(new MainScreen());

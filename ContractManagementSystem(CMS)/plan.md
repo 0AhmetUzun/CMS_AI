@@ -1,7 +1,7 @@
 # CMS_AI - Sözleşme Yönetim Sistemi Geliştirme Planı (Final)
 
 > **Son Güncelleme:** Temmuz 2026
-> **Şu anki aşama:** Faz 1-6, Faz 8 ve **Faz 9** tamamlandı. **Faz 7 (Versiyon Takibi) kullanım senaryosu gereği ertelendi/gerekmez** olarak işaretlendi. Sıradaki iş: **Faz 10 (Güvenlik)**.
+> **Şu anki aşama:** Faz 1-6, Faz 8, **Faz 9**, **Faz 10 (Güvenlik - PIN kilidi + idle kilit)** ve **Faz 15 (Klavye Kısayolları + Tooltip)** tamamlandı. **Faz 7 (Versiyon Takibi) ertelendi/gerekmez.** **Faz 11 (Raporlama), Faz 12 (Toplu İşlemler) ve Faz 13 (Yedekleme) kullanıcı kararıyla iptal edildi.** **Faz 14 (OCR) kullanıcı kararıyla atlandı** (uygulama zaten PDF metnini içe alabiliyor). Kalan: yok.
 
 ## Proje Amacı
 Bireysel sözleşme yönetimi: yükleme, arama, analiz, özetleme, takip ve raporlama.
@@ -21,12 +21,12 @@ Bireysel sözleşme yönetimi: yükleme, arama, analiz, özetleme, takip ve rapo
 
 ### Henüz Başlanmayan Fazlar
 - ~~**Faz 7:** Versiyon Takibi + İki Sürüm Karşılaştırma~~ → **Ertelendi / Gerekmez** (sözleşmeler tek seferlik imzalı arşivlendiği için)
-- **Faz 10:** Güvenlik
-- **Faz 11:** Raporlama ve İstatistikler
-- **Faz 12:** Toplu İşlemler
-- **Faz 13:** Yedekleme Sistemi
-- **Faz 14:** OCR Desteği
-- **Faz 15:** Klavye Kısayolları
+- ~~**Faz 10:** Güvenlik~~ → **Tamamlandı** (PIN kilidi + idle kilit; dosya şifreleme ve gizli mod kapsam dışı)
+- ~~**Faz 11:** Raporlama ve İstatistikler~~ → **İptal edildi** (kullanıcı kararı)
+- ~~**Faz 12:** Toplu İşlemler~~ → **İptal edildi** (kullanıcı kararı)
+- ~~**Faz 13:** Yedekleme Sistemi~~ → **İptal edildi** (kullanıcı kararı)
+- ~~**Faz 14:** OCR Desteği~~ → **Atlandı** (uygulama zaten PDF içe alıyor; kullanıcı kararı)
+- ~~**Faz 15:** Klavye Kısayolları~~ → **Tamamlandı** (Ctrl+F / Ctrl+E / Ctrl+N + hover tooltip)
 
 ### Tamamlanan Özellikler
 - [x] .docx dosyası yükleme (buton + sürükle-bırak)
@@ -298,22 +298,51 @@ yalnızca diske `.docx` olarak kaydedilir (arşive otomatik eklenmez).
 ---
 
 ## Faz 10: Güvenlik (Bireysel Kullanıcı İçin Basitleştirilmiş)
-**Durum:** Hiç başlanmamış | **Öncelik:** Orta
+**Durum:** Tamamlandı | **Öncelik:** Orta | **Tamamlanma Tarihi:** Temmuz 2026
 
-### Temel
-- [ ] Uygulama açılışında PIN/parola (isteğe bağlı)
-- [ ] Cihaz kilidi ile otomatik kapanma (idle sonrası)
+### Kapsam Kararı (Temmuz 2026)
+Kullanıcı kararıyla kapsam daraltıldı:
+- **Yapılanlar:** İsteğe bağlı PIN/parola kilidi + idle (boşta kalma) sonrası otomatik kilit.
+- **Ertelendi / Kapsam Dışı:** Dosya/veritabanı şifreleme ve "Gizli mod" maskeleme — sonraki faza bırakıldı.
+
+### Temel (Tamamlananlar)
+- [x] **İsteğe bağlı PIN kilidi:** `AppSettings` tablosunda PBKDF2 (SHA256, 100k iter, 16-byte salt) ile hash'lenmiş PIN saklanır. İlk kurulumda `PinSetupForm` ile belirlenir; sonrakı açılışlarda `LockScreenForm` sorar. Kullanıcı istediğinde kapatabilir.
+- [x] **Idle otomatik kilit:** `SecurityService.IdleMonitor` fare/klavye aktivitesini izler; `IdleTimeoutMinutes` (vars. 10 dk) boyunca aktivite olmazsa `LockScreenForm` (IdleMode) modal gösterilir. Her aktivitede sayaç sıfırlanır.
+- [x] **Boşta kalma süresi ayarı:** `PinSetupForm` üzerinden dakika bazında ayarlanabilir (1–60 dk).
 
 ### Dosya
-- [ ] Dosya şifreleme (cihaz depolama şifreleme varsa kullan)
+- [ ] ~~Dosya şifreleme~~ → Kapsam dışı (ertelendi)
 
 ### Gizlilik
-- [ ] "Gizli mod": Özet ekranında tutar/risk metnini maskeleme
+- [ ] ~~"Gizli mod" maskeleme~~ → Kapsam dışı (ertelendi)
+
+### Veritabanı
+```sql
+AppSettings (
+    SettingKey NVARCHAR(100) PRIMARY KEY,
+    SettingValue NVARCHAR(MAX)
+);
+```
+Seed (idempotent): `PinEnabled`="false", `IdleTimeoutMinutes`="10".
+
+### Teknik
+- `DatabaseHelper.EnsureTablesExist` → `AppSettings` tablosu eklenir + seed.
+- `Models/AppSettings.cs` (DTO + yardımcı okuma/yazma).
+- `Services/SecurityService.cs` → `IsPinEnabled`, `SetPin`, `VerifyPin`, `DisablePin`, `Get/SetIdleTimeoutMinutes`, `IdleMonitor.Start/Stop`.
+- `Forms/PinSetupForm.cs` → PIN kur / değiştir / kapat + idle süresi.
+- `Forms/LockScreenForm.cs` → Başlangıç (StartupMode, iptal=çıkış) ve boşta (IdleMode, iptal=çıkış) kilit ekranı.
+- `Program.cs` → PIN etkinse `Application.Run` öncesi `LockScreenForm` (StartupMode) gösterilir.
+- `MainScreen.cs` → `pnlMenu` altına "🔒 Güvenlik" butonu + `MainScreen_Load` içinde idle monitor başlatılır.
+
+### Notlar
+- Ek paket gerekmez: PBKDF2 `System.Security.Cryptography` içinde (.NET 8).
+- PIN doğrulama sabit-zamanlı (`CryptographicOperations.FixedTimeEquals`) yapılır.
+- OllamaSharp / Select.HtmlToPdf kaldırma işi Faz 10 kapsamı dışında (teknik borç listesinde).
 
 ---
 
 ## Faz 11: Raporlama ve İstatistikler (Yeni)
-**Durum:** Hiç başlanmamış | **Öncelik:** Orta
+**Durum:** İptal edildi (kullanıcı kararı) | **Öncelik:** —
 
 ### Dashboard
 - [ ] Toplam sözleşme sayısı
@@ -330,7 +359,7 @@ yalnızca diske `.docx` olarak kaydedilir (arşive otomatik eklenmez).
 ---
 
 ## Faz 12: Toplu İşlemler (Yeni)
-**Durum:** Hiç başlanmamış | **Öncelik:** Düşük
+**Durum:** İptal edildi (kullanıcı kararı) | **Öncelik:** —
 
 ### Toplu Yükleme
 - [ ] Birden fazla sözleşme aynı anda yükleme
@@ -343,7 +372,7 @@ yalnızca diske `.docx` olarak kaydedilir (arşive otomatik eklenmez).
 ---
 
 ## Faz 13: Yedekleme Sistemi (Yeni)
-**Durum:** Hiç başlanmamış | **Öncelik:** Orta
+**Durum:** İptal edildi (kullanıcı kararı) | **Öncelik:** —
 
 ### Manuel Yedekleme
 - [ ] Tek tıkla yedekleme butonu
@@ -361,24 +390,29 @@ yalnızca diske `.docx` olarak kaydedilir (arşive otomatik eklenmez).
 ---
 
 ## Faz 14: OCR Desteği (Yeni)
-**Durum:** Hiç başlanmamış | **Öncelik:** Düşük
+**Durum:** Atlandı (kullanıcı kararı) | **Öncelik:** —
 
-### Taranmış PDF
-- [ ] Resim/taranmış PDF'lerden metin çıkarma
-- [ ] Tesseract OCR entegrasyonu
-- [ ] Türkçe karakter desteği
+> **Karar:** Uygulama zaten PDF metnini içe alabildiği için (iTextSharp) OCR fazına gerek kalmadı.
+> Taranmış/görsel tabanlı PDF desteği ileride istenirse tekrar değerlendirilebilir.
 
 ---
 
 ## Faz 15: Klavye Kısayolları (Yeni)
-**Durum:** Hiç başlanmamış | **Öncelik:** Düşük
+**Durum:** Tamamlandı | **Öncelik:** Düşük | **Tamamlanma Tarihi:** Temmuz 2026
 
-### Kısayollar
-- Ctrl+F: Arama
-- Ctrl+E: PDF Export
-- Ctrl+N: Yeni sözleşme yükle
-- Ctrl+B: Yedekle
-- Ctrl+G: Gizli mod aç/kapa
+### Kısayollar (uygulanan)
+- Ctrl+F: Arama kutusuna odaklan (mevcut metinde arama)
+- Ctrl+E: PDF Export (raporu PDF olarak aktar)
+- Ctrl+N: Yeni sözleşme yükle (Sözleşme Yönetimi formunu aç)
+
+> **Not:** `Ctrl+B` (Yedekle) ve `Ctrl+G` (Gizli mod) **uygulanmadı**; bağlı oldukları
+> Faz 13 (Yedekleme) ve Faz 10 Gizli Mod iptal/edildiği için bu kısayolların karşılığı yok.
+
+### Tooltip (hover) desteği
+- Tüm ana butonlara + arama kutusu/radiobuttonlara `ToolTip` eklendi.
+- Fare butonun üzerine getirilip beklendiğinde **buton adı + varsa kısayol** görünür
+  (örn. "Ara (Ctrl+F)", "Analiz raporunu PDF olarak aktar (Ctrl+E)").
+- `MainScreen.cs` → `SetupToolTips()` ve `ProcessCmdKey` (global kısayol yakalama).
 
 ---
 
@@ -463,12 +497,11 @@ Backups (
 | 7 | Faz 8: Sözleşme Şablonları | **Tamamlandı** | Tamamlandı |
 | 8 | Faz 7: Versiyon Takibi | **Ertelendi / Gerekmez** | — |
 | 9 | Faz 9: Export İyileştirme | **Tamamlandı** | Tamamlandı |
-| 10 | Faz 10: Güvenlik | Yeni | 3-4 gün |
-| 11 | Faz 13: Yedekleme | Yeni | 2-3 gün |
-| 12 | Faz 11: Raporlama | Yeni | 1 hafta |
-| 13 | Faz 15: Kısayollar | Yeni | 1 gün |
-| 14 | Faz 12: Toplu İşlemler | Yeni | 1 hafta |
-| 15 | Faz 14: OCR | Yeni | 1-2 hafta |
+| 10 | Faz 10: Güvenlik (PIN + idle kilit) | **Tamamlandı** | Tamamlandı |
+| 11 | Faz 15: Klavye Kısayolları | **Tamamlandı** | 1 gün |
+| 12 | Faz 14: OCR Desteği | **Atlandı** (gerekmez) | — |
+
+> **Not (Temmuz 2026):** Faz 11 (Raporlama), Faz 12 (Toplu İşlemler) ve Faz 13 (Yedekleme) kullanıcı kararıyla **iptal edildi**. Faz 14 (OCR) kullanıcı kararıyla **atlandı** (PDF zaten içe alınıyor). Faz 15 (Kısayollar) **tamamlandı**. Kalan faz yok.
 
 **Toplam Tahmini Süre:** 12-16 hafta
 
@@ -540,9 +573,12 @@ Backups (
 **Sonraki Aşama:**
 6. ~~➕ Versiyon takibi~~ → Ertelendi (tek seferlik imzalı arşiv)
 7. ~~Şablonlar (Faz 8)~~ → Tamamlandı
-8. Export iyileştirmeleri (Faz 9)
-9. Yedekleme (Faz 13)
-10. Raporlama (Faz 11)
+8. Export iyileştirmeleri (Faz 9) → Tamamlandı
+9. ~~Yedekleme (Faz 13)~~ → İptal edildi
+10. ~~Raporlama (Faz 11)~~ → İptal edildi
+11. ~~Toplu İşlemler (Faz 12)~~ → İptal edildi
+12. Klavye Kısayolları (Faz 15) → **Tamamlandı**
+13. OCR Desteği (Faz 14) → **Atlandı** (gerekmez)
 
 ---
 

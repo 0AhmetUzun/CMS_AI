@@ -196,6 +196,41 @@ namespace ContractManagementSystem_CMS_.Services
 
             SeedDefaultData();
             SeedDefaultTemplates();
+            SeedDefaultSettings();
+        }
+
+        private static void SeedDefaultSettings()
+        {
+            try
+            {
+                using var db = new SqlConnection(GetConnectionString());
+                db.Open();
+
+                var defaults = new Dictionary<string, string>
+                {
+                    { "PinEnabled", "false" },
+                    { "PinHash", "" },
+                    { "PinSalt", "" },
+                    { "IdleTimeoutMinutes", "10" }
+                };
+
+                foreach (var kvp in defaults)
+                {
+                    int cnt = db.ExecuteScalar<int>(
+                        "SELECT COUNT(*) FROM AppSettings WHERE SettingKey = @k",
+                        new { k = kvp.Key });
+                    if (cnt == 0)
+                    {
+                        db.Execute(
+                            "INSERT INTO AppSettings (SettingKey, SettingValue) VALUES (@k, @v)",
+                            new { k = kvp.Key, v = kvp.Value });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.WriteLine($"[DatabaseHelper] Ayar tohumlama hatası: {ex.Message}");
+            }
         }
 
         private static void SeedDefaultTemplates()
@@ -572,6 +607,25 @@ Madde 7 - Ekler
                                     CreatedAt DATETIME DEFAULT GETDATE()
                                 )";
                             using (var createCmd = new SqlCommand(createTemplates, connection))
+                            {
+                                createCmd.ExecuteNonQuery();
+                            }
+                        }
+                    }
+
+                    // AppSettings tablosu var mı kontrol et
+                    string checkSettings = "SELECT COUNT(*) FROM sys.tables WHERE name = 'AppSettings'";
+                    using (var cmd = new SqlCommand(checkSettings, connection))
+                    {
+                        int exists = (int)cmd.ExecuteScalar();
+                        if (exists == 0)
+                        {
+                            string createSettings = @"
+                                CREATE TABLE AppSettings (
+                                    SettingKey NVARCHAR(100) PRIMARY KEY,
+                                    SettingValue NVARCHAR(MAX)
+                                )";
+                            using (var createCmd = new SqlCommand(createSettings, connection))
                             {
                                 createCmd.ExecuteNonQuery();
                             }
