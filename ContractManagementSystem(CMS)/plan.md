@@ -1,7 +1,7 @@
 # CMS_AI - Sözleşme Yönetim Sistemi Geliştirme Planı (Final)
 
 > **Son Güncelleme:** Temmuz 2026
-> **Şu anki aşama:** Faz 1-5 tamamlandı, Faz 6 ve Faz 9 kısmen mevcut. Sıradaki iş: **Faz 6 (Risk/Uyarılar Kontrol Listesi iyileştirme)** veya **Faz 8 (Sözleşme Şablonları)**.
+> **Şu anki aşama:** Faz 1-6 tamamlandı, Faz 9 kısmen mevcut. **Faz 7 (Versiyon Takibi) kullanım senaryosu gereği ertelendi/gerekmez** olarak işaretlendi. Sıradaki iş: **Faz 8 (Sözleşme Şablonları)**.
 
 ## Proje Amacı
 Bireysel sözleşme yönetimi: yükleme, arama, analiz, özetleme, takip ve raporlama.
@@ -19,7 +19,7 @@ Bireysel sözleşme yönetimi: yükleme, arama, analiz, özetleme, takip ve rapo
 - **Faz 6:** Risk/Uyarılar Kontrol Listesi (Kapsam daraltıldı + araştırmaya dayalı genişletildi) ✅
 
 ### Henüz Başlanmayan Fazlar
-- **Faz 7:** Versiyon Takibi + İki Sürüm Karşılaştırma
+- ~~**Faz 7:** Versiyon Takibi + İki Sürüm Karşılaştırma~~ → **Ertelendi / Gerekmez** (sözleşmeler tek seferlik imzalı arşivlendiği için)
 - **Faz 8:** Basit Sözleşme Şablonları + Alan Doldurma
 - **Faz 9:** Dışa Aktarma (Export) İyileştirme
 - **Faz 10:** Güvenlik
@@ -213,21 +213,24 @@ Karmaşık bir "Risk Kontrol" sekmesi / "İncelendi" işaretleme UI'ı yapılmad
 ---
 
 ## Faz 7: Versiyon Takibi + İki Sürüm Karşılaştırma
-**Durum:** Hiç başlanmamış | **Öncelik:** Orta
+**Durum:** Ertelendi / Gerekmez | **Öncelik:** Düşük (uygulanmayabilir)
+
+> **Karar (Temmuz 2026):** Sözleşmeler tek seferlik, imzalı olarak arşivlendiği için
+> versiyon geçmişi ve sürüm karşılaştırması kullanım senaryosunda değer yaratmıyor.
+> Bu faz **ertelendi**. Bağlı olduğu `Contracts.VersionNumber` ve `ContractVersions`
+> tablosu da artık plan dışıdır.
 
 ### Versiyonlama
-- [ ] Aynı sözleşme adının altında V1/V2/V3
-- [ ] "Final" işareti (imzalanan sürüm)
+- [ ] ~~Aynı sözleşme adının altında V1/V2/V3~~ → Ertelendi
+- [ ] ~~"Final" işareti (imzalanan sürüm)~~ → Ertelendi
 
 ### Karşılaştırma
-- [ ] Madde bazlı değişiklik listesi
-  - "Fesih bildirim süresi: 30 gün → 45 gün"
-  - "Ödeme vadeleri: Net 15 → Net 30"
-- [ ] Highlight: değişen cümlenin bulunduğu yer
-- [ ] 3-5 maddelik "değişiklik özeti"
+- [ ] ~~Madde bazlı değişiklik listesi~~ → Ertelendi
+- [ ] ~~Highlight: değişen cümlenin bulunduğu yer~~ → Ertelendi
+- [ ] ~~3-5 maddelik "değişiklik özeti"~~ → Ertelendi
 
 ### Kullanıcı
-- [ ] "Bu değişiklik kabul edildi/kabul edilmedi" notu
+- [ ] ~~"Bu değişiklik kabul edildi/kabul edilmedi" notu~~ → Ertelendi
 
 ---
 
@@ -372,12 +375,13 @@ Karmaşık bir "Risk Kontrol" sekmesi / "İncelendi" işaretleme UI'ı yapılmad
 
 > **Gerçek Durum (Temmuz 2026):** `DatabaseSetup.sql` içinde şu an yalnızca şu tablolar
 > **gerçekten oluşturuluyor**: `ContractTypes`, `Rules`, `Contracts`, `ContractExtractions`.
-> Aşağıdaki "Final" şemadaki `ContractVersions`, `ContractDates`, `ContractNotes`, `Tags`,
+> Aşağıdaki "Final" şemadaki `ContractDates` (Faz 5 ile eklendi), `ContractNotes`, `Tags`,
 > `ContractTags`, `ContractTemplates`, `Backups` tabloları **henüz oluşturulmadı**; ilgili
-> fazlar (5, 7, 8, 11, 12, 13) başladığında eklenmesi gerekiyor.
+> fazlar (8, 11, 12, 13) başladığında eklenmesi gerekiyor. `ContractVersions` tablosu Faz 7
+> ile birlikte **plan dışı** bırakıldı.
 > Ayrıca mevcut `Contracts` tablosunda `PartyName`, `Status`, `Year`, `StartDate`, `EndDate`,
-> `Amount`, `Currency`, `IsSigned`, `VersionNumber` alanları yok; sadece `FilePath` ve
-> `RiskScore` alanları mevcut.
+> `Amount`, `Currency`, `IsSigned` alanları yok; sadece `FilePath` ve
+> `RiskScore` alanları mevcut. (`VersionNumber` da Faz 7 ile birlikte plan dışı.)
 
 ```sql
 -- Mevcut tablolar
@@ -390,13 +394,7 @@ Contracts (
     PartyName, Status, Year,
     StartDate, EndDate, Amount, Currency,
     Description, IsSigned,
-    VersionNumber DEFAULT 1,
     CreatedAt, UpdatedAt
-);
-
-ContractVersions (
-    Id, ContractId, VersionNumber, Content,
-    Notes, CreatedAt
 );
 
 ContractDates (
@@ -439,7 +437,7 @@ Backups (
 | 5 | Faz 5: Kritik Tarihler | Tamamlandı | Tamamlandı |
 | 6 | Faz 6: Risk Kontrolü (Rules DB + AI prompt) | Tamamlandı | Tamamlandı |
 | 7 | Faz 8: Sözleşme Şablonları | Yeni | 1 hafta |
-| 8 | Faz 7: Versiyon Takibi | Yeni | 1-2 hafta |
+| 8 | Faz 7: Versiyon Takibi | **Ertelendi / Gerekmez** | — |
 | 9 | Faz 9: Export İyileştirme | İyileştirme | 3-4 gün |
 | 10 | Faz 10: Güvenlik | Yeni | 3-4 gün |
 | 11 | Faz 13: Yedekleme | Yeni | 2-3 gün |
@@ -516,11 +514,11 @@ Backups (
 5. ✅ Executive Summary (Faz 3 tamamlandı)
 
 **Sonraki Aşama:**
-6. ➕ Versiyon takibi
-7. Şablonlar
-8. Export iyileştirmeleri
-9. Yedekleme
-10. Raporlama
+6. ~~➕ Versiyon takibi~~ → Ertelendi (tek seferlik imzalı arşiv)
+7. Şablonlar (Faz 8)
+8. Export iyileştirmeleri (Faz 9)
+9. Yedekleme (Faz 13)
+10. Raporlama (Faz 11)
 
 ---
 
