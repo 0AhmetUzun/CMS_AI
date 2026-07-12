@@ -9,7 +9,7 @@ namespace ContractManagementSystem_CMS_.Services
 {
     public class ExportService
     {
-        public void ExportDirectToPdf(string filePath, AnalysisResult result, string contractTypeName, AIService.AIAnalysisResult? aiResult = null)
+        public void ExportDirectToPdf(string filePath, AnalysisResult result, string contractTypeName, AIService.AIAnalysisResult? aiResult = null, List<ContractDate>? dates = null)
         {
             Document doc = new Document(iTextSharp.text.PageSize.A4, 50f, 50f, 50f, 50f);
 
@@ -18,6 +18,7 @@ namespace ContractManagementSystem_CMS_.Services
                 using (FileStream fs = new FileStream(filePath, FileMode.Create))
                 {
                     PdfWriter writer = PdfWriter.GetInstance(doc, fs);
+                    writer.PageEvent = new PageNumberEventHandler();
                     doc.Open();
 
                     string fontPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "arial.ttf");
@@ -25,11 +26,11 @@ namespace ContractManagementSystem_CMS_.Services
 
                     iTextSharp.text.Font titleFont = new iTextSharp.text.Font(bf, 18, iTextSharp.text.Font.BOLD, BaseColor.DARK_GRAY);
                     iTextSharp.text.Font subTitleFont = new iTextSharp.text.Font(bf, 14, iTextSharp.text.Font.BOLD, BaseColor.GRAY);
-                    iTextSharp.text.Font sectionFont = new iTextSharp.text.Font(bf, 13, iTextSharp.text.Font.BOLD, new BaseColor(128, 0, 255));
                     iTextSharp.text.Font normalFont = new iTextSharp.text.Font(bf, 11, iTextSharp.text.Font.NORMAL, BaseColor.BLACK);
                     iTextSharp.text.Font boldFont = new iTextSharp.text.Font(bf, 11, iTextSharp.text.Font.BOLD, BaseColor.BLACK);
                     iTextSharp.text.Font whiteFont = new iTextSharp.text.Font(bf, 12, iTextSharp.text.Font.BOLD, BaseColor.WHITE);
                     iTextSharp.text.Font smallFont = new iTextSharp.text.Font(bf, 10, iTextSharp.text.Font.NORMAL, BaseColor.GRAY);
+                    iTextSharp.text.Font noteLabelFont = new iTextSharp.text.Font(bf, 11, iTextSharp.text.Font.BOLD, new BaseColor(41, 128, 185));
 
                     Paragraph title = new Paragraph("SÖZLEŞME ANALİZ RAPORU", titleFont);
                     title.Alignment = Element.ALIGN_CENTER;
@@ -64,9 +65,11 @@ namespace ContractManagementSystem_CMS_.Services
                     detailsTable.AddCell(new PdfPCell(new Phrase("Kural Açıklaması", whiteFont)) { BackgroundColor = BaseColor.DARK_GRAY, Padding = 6f });
                     detailsTable.AddCell(new PdfPCell(new Phrase("Analiz Durumu", whiteFont)) { BackgroundColor = BaseColor.DARK_GRAY, Padding = 6f, HorizontalAlignment = Element.ALIGN_CENTER });
 
+                    int findingNo = 0;
                     foreach (var detail in result.Details)
                     {
-                        detailsTable.AddCell(new PdfPCell(new Phrase(detail.RuleDescription ?? "Açıklama Yok", normalFont)) { Padding = 6f });
+                        findingNo++;
+                        detailsTable.AddCell(new PdfPCell(new Phrase($"[{findingNo}] {detail.RuleDescription ?? "Açıklama Yok"}", normalFont)) { Padding = 6f });
                         string statusText = detail.Status ?? "Belirtilmedi";
                         PdfPCell statusCell = new PdfPCell(new Phrase(statusText, normalFont)) { Padding = 6f, HorizontalAlignment = Element.ALIGN_CENTER };
                         if (statusText == "Yasaklı Madde Bulundu" || statusText == "Zorunlu Madde Eksik")
@@ -79,8 +82,8 @@ namespace ContractManagementSystem_CMS_.Services
 
                     if (aiResult != null)
                     {
-                        doc.Add(new Paragraph("\n\n"));
-                        Paragraph aiTitle = new Paragraph("AI ANALİZ BULGULARI", sectionFont);
+                        doc.NewPage();
+                        Paragraph aiTitle = new Paragraph("AI ANALİZ BULGULARI", subTitleFont);
                         aiTitle.SpacingBefore = 15f;
                         aiTitle.SpacingAfter = 10f;
                         doc.Add(aiTitle);
@@ -112,7 +115,9 @@ namespace ContractManagementSystem_CMS_.Services
 
                         if (aiResult.Details != null && aiResult.Details.Count > 0)
                         {
-                            doc.Add(new Paragraph("AI MADDE DETAYLARI", boldFont));
+                            Paragraph aiDetailsHeading = new Paragraph("AI MADDE DETAYLARI", boldFont);
+                            aiDetailsHeading.SpacingAfter = 14f;
+                            doc.Add(aiDetailsHeading);
                             PdfPTable aiDetailsTable = new PdfPTable(3);
                             aiDetailsTable.WidthPercentage = 100;
                             aiDetailsTable.SetWidths(new float[] { 30f, 20f, 50f });
@@ -120,9 +125,11 @@ namespace ContractManagementSystem_CMS_.Services
                             aiDetailsTable.AddCell(new PdfPCell(new Phrase("Risk", whiteFont)) { BackgroundColor = BaseColor.DARK_GRAY, Padding = 6f, HorizontalAlignment = Element.ALIGN_CENTER });
                             aiDetailsTable.AddCell(new PdfPCell(new Phrase("Açıklama", whiteFont)) { BackgroundColor = BaseColor.DARK_GRAY, Padding = 6f });
 
+                            int aiNo = 0;
                             foreach (var detail in aiResult.Details)
                             {
-                                aiDetailsTable.AddCell(new PdfPCell(new Phrase(detail.Title ?? "-", boldFont)) { Padding = 6f });
+                                aiNo++;
+                                aiDetailsTable.AddCell(new PdfPCell(new Phrase($"[{aiNo}] {detail.Title ?? "-"}", boldFont)) { Padding = 6f });
                                 string risk = detail.Risk ?? "Bilinmiyor";
                                 BaseColor riskColor = BaseColor.BLACK;
                                 if (risk == "Düşük") riskColor = new BaseColor(46, 204, 113);
@@ -139,11 +146,36 @@ namespace ContractManagementSystem_CMS_.Services
                         if (aiResult.Recommendations != null && aiResult.Recommendations.Count > 0)
                         {
                             doc.Add(new Paragraph("\nAI ÖNERİLERİ", boldFont));
+                            int recNo = 0;
                             foreach (var rec in aiResult.Recommendations)
                             {
-                                Paragraph recItem = new Paragraph($"  •  {rec}", normalFont);
+                                recNo++;
+                                Paragraph recItem = new Paragraph($"  {recNo}.  {rec}", normalFont);
                                 recItem.SpacingAfter = 4f;
                                 doc.Add(recItem);
+                            }
+                        }
+                    }
+
+                    if (dates != null && dates.Count > 0)
+                    {
+                        var datedNotes = dates.FindAll(d => !string.IsNullOrWhiteSpace(d.Note));
+                        if (datedNotes.Count > 0)
+                        {
+                            doc.Add(new Paragraph("\n\n"));
+                            doc.NewPage();
+                            Paragraph notesTitle = new Paragraph("KULLANICI NOTLARI", noteLabelFont);
+                            notesTitle.SpacingBefore = 15f;
+                            notesTitle.SpacingAfter = 10f;
+                            doc.Add(notesTitle);
+
+                            int noteNo = 0;
+                            foreach (var d in datedNotes)
+                            {
+                                noteNo++;
+                                Paragraph noteItem = new Paragraph($"{noteNo}. {d.DateTypeDisplayName} ({d.DateValue:dd.MM.yyyy}): {d.Note}", normalFont);
+                                noteItem.SpacingAfter = 6f;
+                                doc.Add(noteItem);
                             }
                         }
                     }
@@ -160,6 +192,20 @@ namespace ContractManagementSystem_CMS_.Services
             {
                 System.Diagnostics.Trace.WriteLine($"[ExportService] Hata: {ex.Message}", typeof(ExportService).FullName);
                 throw;
+            }
+        }
+
+        private class PageNumberEventHandler : PdfPageEventHelper
+        {
+            public override void OnEndPage(PdfWriter writer, Document document)
+            {
+                iTextSharp.text.Font pageFont = new iTextSharp.text.Font(
+                    BaseFont.CreateFont(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "arial.ttf"),
+                        BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED), 9, iTextSharp.text.Font.NORMAL, BaseColor.GRAY);
+                Phrase phrase = new Phrase($"Sayfa {writer.PageNumber}", pageFont);
+                float x = document.Right - 40f;
+                float y = document.Bottom - 20f;
+                ColumnText.ShowTextAligned(writer.DirectContent, Element.ALIGN_RIGHT, phrase, x, y, 0);
             }
         }
     }

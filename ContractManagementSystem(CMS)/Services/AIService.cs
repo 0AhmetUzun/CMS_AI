@@ -77,6 +77,8 @@ namespace ContractManagementSystem_CMS_.Services
   ]
 }
 
+ÖNEMLİ: ""recommendations"" dizisini ASLA BOŞ BIRAKMA, EN AZ 2-3 MADDE EKLE. Eğer risk tespit edildiyse her biri için düzeltme önerisi yaz.
+
 ÖNEMLİ - Aşağıdaki riskleri MUTLAKA tespit et ve details dizisine ekle (her biri için risk seviyesini Düşük/Orta/Yüksek/Kritik olarak belirt):
 - Belirsiz süre/tarih: net başlangıç veya bitiş tarihi yoksa.
 - Aşırı cezai şart veya orantısız gecikme cezası: yüksek yüzde/yürürlükteki sınırların üzerinde tutar.
@@ -129,6 +131,15 @@ Sadece JSON döndür, başka bir şey yazma. Türkçe yanıt ver.";
                     {
                         var recText = rec.GetString();
                         if (recText != null) result.Recommendations.Add(recText);
+                    }
+                }
+
+                if (result.Recommendations.Count == 0 && result.Details.Count > 0)
+                {
+                    foreach (var detail in result.Details)
+                    {
+                        if (!string.IsNullOrWhiteSpace(detail.Explanation))
+                            result.Recommendations.Add($"{detail.Title}: {detail.Explanation}");
                     }
                 }
             }
@@ -341,7 +352,8 @@ Eğer bir bilgi sözleşmede bulunamıyorsa ""Bulunamadı"" yaz. Türkçe yanıt
                     new { role = "system", content = systemPrompt },
                     new { role = "user", content = userMessage }
                 },
-                stream = false
+                stream = false,
+                temperature = 0
             };
 
             string json = JsonSerializer.Serialize(request);
@@ -362,6 +374,18 @@ Eğer bir bilgi sözleşmede bulunamıyorsa ""Bulunamadı"" yaz. Türkçe yanıt
         private string CleanJsonResponse(string response)
         {
             string cleaned = response.Trim();
+
+            if (cleaned.StartsWith("```"))
+            {
+                int firstNewLine = cleaned.IndexOf('\n');
+                if (firstNewLine >= 0)
+                    cleaned = cleaned.Substring(firstNewLine + 1);
+                int lastFence = cleaned.LastIndexOf("```");
+                if (lastFence >= 0)
+                    cleaned = cleaned.Substring(0, lastFence);
+                cleaned = cleaned.Trim();
+            }
+
             int jsonStart = cleaned.IndexOf('{');
             int jsonEnd = cleaned.LastIndexOf('}');
             if (jsonStart >= 0 && jsonEnd > jsonStart)

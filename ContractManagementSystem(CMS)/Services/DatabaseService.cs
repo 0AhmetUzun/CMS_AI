@@ -199,6 +199,17 @@ namespace ContractManagementSystem_CMS_.Services
             }
         }
 
+        // ContractDates (mevcut notlar dahil)
+        public List<ContractDate> GetDatesByContractId(int contractId)
+        {
+            using (var db = new SqlConnection(GetConnectionString()))
+            {
+                return db.Query<ContractDate>(
+                    "SELECT * FROM ContractDates WHERE ContractId = @ContractId ORDER BY DateValue",
+                    new { ContractId = contractId }).ToList();
+            }
+        }
+
         // ContractTemplates CRUD
         public List<ContractTemplate> GetAllTemplates()
         {

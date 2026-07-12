@@ -1,7 +1,7 @@
 # CMS_AI - Sözleşme Yönetim Sistemi Geliştirme Planı (Final)
 
 > **Son Güncelleme:** Temmuz 2026
-> **Şu anki aşama:** Faz 1-6 ve Faz 8 tamamlandı, Faz 9 kısmen mevcut. **Faz 7 (Versiyon Takibi) kullanım senaryosu gereği ertelendi/gerekmez** olarak işaretlendi. Sıradaki iş: **Faz 9 (Dışa Aktarma İyileştirme)**.
+> **Şu anki aşama:** Faz 1-6, Faz 8 ve **Faz 9** tamamlandı. **Faz 7 (Versiyon Takibi) kullanım senaryosu gereği ertelendi/gerekmez** olarak işaretlendi. Sıradaki iş: **Faz 10 (Güvenlik)**.
 
 ## Proje Amacı
 Bireysel sözleşme yönetimi: yükleme, arama, analiz, özetleme, takip ve raporlama.
@@ -21,7 +21,6 @@ Bireysel sözleşme yönetimi: yükleme, arama, analiz, özetleme, takip ve rapo
 
 ### Henüz Başlanmayan Fazlar
 - ~~**Faz 7:** Versiyon Takibi + İki Sürüm Karşılaştırma~~ → **Ertelendi / Gerekmez** (sözleşmeler tek seferlik imzalı arşivlendiği için)
-- **Faz 9:** Dışa Aktarma (Export) İyileştirme
 - **Faz 10:** Güvenlik
 - **Faz 11:** Raporlama ve İstatistikler
 - **Faz 12:** Toplu İşlemler
@@ -274,19 +273,27 @@ yalnızca diske `.docx` olarak kaydedilir (arşive otomatik eklenmez).
 
 ---
 
-## Faz 9: Dışa Aktarma (Export)
-**Durum:** Kısmen mevcut | **Öncelik:** Orta
+## Faz 9: Dışa Aktarma (Export) İyileştirme
+**Durum:** Tamamlandı | **Öncelik:** Orta | **Tamamlanma Tarihi:** Temmuz 2026
 
 ### Mevcut
 - [x] PDF rapor oluşturma (ExportService)
 
-### Eklenecekler
-- [ ] Özet PDF (sadece özet bölümü)
-- [ ] CSV dışa aktarma (alanlar bazında)
-- [ ] Belge + açıklamalar (tek PDF)
-- [ ] "Sadece kritik maddeleri" export seçeneği
-- [ ] Madde numarası/sayfa ekleme
-- [ ] Kullanıcı notlarını ayrı katman olarak ekleme
+### Uygulananlar (netleşen kapsam)
+- [x] **Tam Rapor PDF** korundu (`btnExport` / "PDF Aktar" değişmedi) — kural + AI bulguları + açıklamalar tek PDF.
+- [x] **Sayfa numarası ekleme** — her sayfada footer'da `Sayfa X` (iTextSharp `PdfPageEventHelper`).
+- [x] **Madde numaralandırma** — kural bulguları `[1], [2]…`, AI maddeleri `[1], [2]…` ve AI önerileri `1. 2.…` şeklinde numaralandırıldı.
+- [x] **Kullanıcı notlarını ayrı katman** — mevcut `ContractDate.Note` alanları ("Kullanıcı Notları" bölümü olarak, tarih tipi + not metniyle) PDF sonuna eklendi. Yeni not sistemi kurulmadı; sadece mevcut notlar.
+
+### Kapsam Dışı (kullanıcı kararıyla çıkarıldı)
+- [ ] ~~Özet PDF (sadece özet bölümü)~~ → İstenmedi, eklenmedi.
+- [ ] ~~CSV dışa aktarma~~ → İstenmedi, eklenmedi.
+- [ ] ~~"Sadece kritik maddeleri" export seçeneği~~ → İstenmedi, eklenmedi.
+
+### Teknik
+- `DatabaseService.GetDatesByContractId(int)` eklendi (ContractDates + Note).
+- `ExportService.ExportDirectToPdf` imzasına `List<ContractDate>? dates = null` eklendi (geriye dönük uyumlu).
+- `MainScreen.btnExport_Click` → mevcut sözleşme id'sinden (`_currentContractId`) notları çekip PDF'e gönderir.
 
 ---
 
@@ -455,7 +462,7 @@ Backups (
 | 6 | Faz 6: Risk Kontrolü (Rules DB + AI prompt) | Tamamlandı | Tamamlandı |
 | 7 | Faz 8: Sözleşme Şablonları | **Tamamlandı** | Tamamlandı |
 | 8 | Faz 7: Versiyon Takibi | **Ertelendi / Gerekmez** | — |
-| 9 | Faz 9: Export İyileştirme | İyileştirme | 3-4 gün |
+| 9 | Faz 9: Export İyileştirme | **Tamamlandı** | Tamamlandı |
 | 10 | Faz 10: Güvenlik | Yeni | 3-4 gün |
 | 11 | Faz 13: Yedekleme | Yeni | 2-3 gün |
 | 12 | Faz 11: Raporlama | Yeni | 1 hafta |

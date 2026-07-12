@@ -616,7 +616,10 @@ namespace ContractManagementSystem_CMS_
                 {
                     try
                     {
-                        _exportService.ExportDirectToPdf(sfd.FileName, _lastAnalysisResult, comboboxContractType.Text, _lastAIResult);
+                        List<ContractDate> dates = _currentContractId > 0
+                            ? _dbService.GetDatesByContractId(_currentContractId)
+                            : new List<ContractDate>();
+                        _exportService.ExportDirectToPdf(sfd.FileName, _lastAnalysisResult, comboboxContractType.Text, _lastAIResult, dates);
                         MessageBox.Show("Rapor başarıyla PDF olarak oluşturuldu!", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = sfd.FileName, UseShellExecute = true });
                     }
