@@ -638,6 +638,14 @@ namespace ContractManagementSystem_CMS_
             }
         }
 
+        private void btnTemplates_Click(object sender, EventArgs e)
+        {
+            using (var templateForm = new TemplateListForm())
+            {
+                templateForm.ShowDialog(this);
+            }
+        }
+
         private void btnContractManagement_Click(object sender, EventArgs e)
         {
             using (var contractListForm = new ContractListForm())

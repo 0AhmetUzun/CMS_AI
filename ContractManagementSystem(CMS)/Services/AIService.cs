@@ -244,6 +244,14 @@ Orijinal maddeyi ve önerilen düzeltmeyi sun.";
             return await SendChatMessageAsync(systemPrompt, userMessage);
         }
 
+        public async Task<string> DraftClauseAsync(string instruction)
+        {
+            string systemPrompt = @"Sen bir Türk hukuku sözleşme taslakçısısın. Kullanıcının verdiği kısa açıklamayı, profesyonel, dengeli ve Türk hukukuna uygun tek bir sözleşme maddesine dönüştür.
+Sadece madde metnini yaz, başlık veya açıklama ekleme. Türkçe yanıt ver.";
+            string userMessage = instruction;
+            return await SendChatMessageAsync(systemPrompt, userMessage);
+        }
+
         public async Task<string> SearchInContractAsync(string contractText, string question)
         {
             string systemPrompt = @"Verilen sözleşme metninde sorulan soruyu yanıtla.

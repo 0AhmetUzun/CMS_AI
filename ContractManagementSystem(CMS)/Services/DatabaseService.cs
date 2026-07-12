@@ -198,5 +198,48 @@ namespace ContractManagementSystem_CMS_.Services
                 db.Execute("DELETE FROM ContractExtractions WHERE Id = @Id", new { Id = extractionId });
             }
         }
+
+        // ContractTemplates CRUD
+        public List<ContractTemplate> GetAllTemplates()
+        {
+            using (var db = new SqlConnection(GetConnectionString()))
+            {
+                return db.Query<ContractTemplate>("SELECT * FROM ContractTemplates ORDER BY IsBuiltIn DESC, TemplateName").ToList();
+            }
+        }
+
+        public ContractTemplate? GetTemplateById(int id)
+        {
+            using (var db = new SqlConnection(GetConnectionString()))
+            {
+                return db.QueryFirstOrDefault<ContractTemplate>("SELECT * FROM ContractTemplates WHERE Id = @Id", new { Id = id });
+            }
+        }
+
+        public int SaveTemplate(ContractTemplate template)
+        {
+            using (var db = new SqlConnection(GetConnectionString()))
+            {
+                if (template.Id > 0)
+                {
+                    db.Execute(
+                        "UPDATE ContractTemplates SET TemplateName = @TemplateName, TemplateType = @TemplateType, Content = @Content WHERE Id = @Id",
+                        new { template.TemplateName, template.TemplateType, template.Content, template.Id });
+                    return template.Id;
+                }
+
+                return db.ExecuteScalar<int>(
+                    "INSERT INTO ContractTemplates (TemplateName, TemplateType, Content, IsBuiltIn, CreatedAt) VALUES (@TemplateName, @TemplateType, @Content, 0, GETDATE()); SELECT CAST(SCOPE_IDENTITY() AS INT);",
+                    new { template.TemplateName, template.TemplateType, template.Content });
+            }
+        }
+
+        public void DeleteTemplate(int id)
+        {
+            using (var db = new SqlConnection(GetConnectionString()))
+            {
+                db.Execute("DELETE FROM ContractTemplates WHERE Id = @Id AND IsBuiltIn = 0", new { Id = id });
+            }
+        }
     }
 }

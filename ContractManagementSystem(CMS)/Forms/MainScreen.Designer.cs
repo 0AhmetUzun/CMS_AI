@@ -24,6 +24,7 @@
             btnManageRules = new Button();
             btnExport = new Button();
             btnContractManagement = new Button();
+            btnTemplates = new Button();
             grpSummaryType = new GroupBox();
             rbDetailedSummary = new RadioButton();
             rbBriefSummary = new RadioButton();
@@ -107,6 +108,7 @@
             pnlMenu.Controls.Add(tabResults);
             pnlMenu.Controls.Add(btnExport);
             pnlMenu.Controls.Add(btnContractManagement);
+            pnlMenu.Controls.Add(btnTemplates);
             pnlMenu.Controls.Add(btnManageRules);
             pnlMenu.Controls.Add(btnUpcomingDates);
             pnlMenu.Dock = DockStyle.Fill;
@@ -567,9 +569,9 @@
             btnExport.ForeColor = Color.White;
             btnExport.Location = new Point(12, 666);
             btnExport.Name = "btnExport";
-            btnExport.Size = new Size(120, 32);
+            btnExport.Size = new Size(92, 32);
             btnExport.TabIndex = 6;
-            btnExport.Text = "PDF Dışa Aktar";
+            btnExport.Text = "PDF Aktar";
             btnExport.UseVisualStyleBackColor = false;
             btnExport.Click += btnExport_Click;
             // 
@@ -583,13 +585,30 @@
             btnContractManagement.FlatStyle = FlatStyle.Flat;
             btnContractManagement.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
             btnContractManagement.ForeColor = Color.White;
-            btnContractManagement.Location = new Point(140, 666);
+            btnContractManagement.Location = new Point(108, 666);
             btnContractManagement.Name = "btnContractManagement";
-            btnContractManagement.Size = new Size(228, 32);
+            btnContractManagement.Size = new Size(150, 32);
             btnContractManagement.TabIndex = 7;
-            btnContractManagement.Text = "📂 Sözleşme Yönetimi";
+            btnContractManagement.Text = "📂 Sözleşmeler";
             btnContractManagement.UseVisualStyleBackColor = false;
             btnContractManagement.Click += btnContractManagement_Click;
+            // 
+            // btnTemplates
+            btnTemplates.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            btnTemplates.BackColor = ContractManagementSystem_CMS_.Extensions.UIStyleHelper.AccentGreen;
+            btnTemplates.CausesValidation = false;
+            btnTemplates.Cursor = Cursors.Hand;
+            btnTemplates.FlatAppearance.BorderSize = 0;
+            btnTemplates.FlatStyle = FlatStyle.Flat;
+            btnTemplates.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
+            btnTemplates.ForeColor = Color.White;
+            btnTemplates.Location = new Point(262, 666);
+            btnTemplates.Name = "btnTemplates";
+            btnTemplates.Size = new Size(112, 32);
+            btnTemplates.TabIndex = 8;
+            btnTemplates.Text = "📄 Şablonlar";
+            btnTemplates.UseVisualStyleBackColor = false;
+            btnTemplates.Click += btnTemplates_Click;
             // 
             // btnManageRules
             // 
@@ -681,6 +700,7 @@
         private DataGridView dgvSearchResults;
         private Button btnExport;
         private Button btnContractManagement;
+        private Button btnTemplates;
         private Button btnManageRules;
         private Button btnUpcomingDates;
         private RichTextBox richTextBoxViewContract;

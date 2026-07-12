@@ -1,7 +1,7 @@
 # CMS_AI - Sözleşme Yönetim Sistemi Geliştirme Planı (Final)
 
 > **Son Güncelleme:** Temmuz 2026
-> **Şu anki aşama:** Faz 1-6 tamamlandı, Faz 9 kısmen mevcut. **Faz 7 (Versiyon Takibi) kullanım senaryosu gereği ertelendi/gerekmez** olarak işaretlendi. Sıradaki iş: **Faz 8 (Sözleşme Şablonları)**.
+> **Şu anki aşama:** Faz 1-6 ve Faz 8 tamamlandı, Faz 9 kısmen mevcut. **Faz 7 (Versiyon Takibi) kullanım senaryosu gereği ertelendi/gerekmez** olarak işaretlendi. Sıradaki iş: **Faz 9 (Dışa Aktarma İyileştirme)**.
 
 ## Proje Amacı
 Bireysel sözleşme yönetimi: yükleme, arama, analiz, özetleme, takip ve raporlama.
@@ -17,10 +17,10 @@ Bireysel sözleşme yönetimi: yükleme, arama, analiz, özetleme, takip ve rapo
 - **Faz 4:** Madde/Alan Çıkarımı (Structured Extraction) ✅
 - **Faz 5:** Kritik Tarihler Kartı + Hatırlatıcı ✅
 - **Faz 6:** Risk/Uyarılar Kontrol Listesi (Kapsam daraltıldı + araştırmaya dayalı genişletildi) ✅
+- **Faz 8:** Basit Sözleşme Şablonları + Alan Doldurma ✅
 
 ### Henüz Başlanmayan Fazlar
 - ~~**Faz 7:** Versiyon Takibi + İki Sürüm Karşılaştırma~~ → **Ertelendi / Gerekmez** (sözleşmeler tek seferlik imzalı arşivlendiği için)
-- **Faz 8:** Basit Sözleşme Şablonları + Alan Doldurma
 - **Faz 9:** Dışa Aktarma (Export) İyileştirme
 - **Faz 10:** Güvenlik
 - **Faz 11:** Raporlama ve İstatistikler
@@ -235,25 +235,42 @@ Karmaşık bir "Risk Kontrol" sekmesi / "İncelendi" işaretleme UI'ı yapılmad
 ---
 
 ## Faz 8: Basit Sözleşme Şablonları + Alan Doldurma
-**Durum:** Hiç başlanmamış | **Öncelik:** Orta
+**Durum:** Tamamlandı | **Öncelik:** Orta | **Tamamlanma Tarihi:** Temmuz 2026
 
-### Şablon Kütüphanesi (3-5 tane)
-- [ ] NDA (tek taraf/karşı taraf)
-- [ ] Hizmet sözleşmesi
-- [ ] Satış/teklif
-- [ ] Kira (basit)
+### Yaklaşım
+Plan.md'deki orijinal kapsam daraltıldı: AI'ın "metni otomatik uygun maddeye yerleştirmesi" özelliği çıkarıldı;
+yerine **kullanıcının onaylayıp düzenleyebildiği** "AI ile Madde Oluştur" butonu eklendi. Üretilen taslak
+yalnızca diske `.docx` olarak kaydedilir (arşive otomatik eklenmez).
 
-### Şablon Alanları
-- [ ] Taraflar
-- [ ] Konu/kapsam
-- [ ] Süre
-- [ ] Ödeme
-- [ ] Fesih/yenileme
-- [ ] Ekler (teslimat listesi)
+### Şablon Kütüphanesi (4 hazır şablon, idempotent tohumlanır)
+- [x] Gizlilik Sözleşmesi (NDA)
+- [x] Hizmet Sözleşmesi
+- [x] Satış / Teklif Sözleşmesi
+- [x] Kira Sözleşmesi (Basit)
+- [x] Kullanıcının kendi şablonunu oluşturma / düzenleme / silme (hazır olanlar korunur)
 
-### AI Rolü (Opsiyonel)
-- [ ] Kullanıcı metnini şablona "uygun madde" olarak yerleştirme önerisi
-- [ ] Her zaman kullanıcı onayıyla
+### Şablon Alanları (placeholder tabanlı, otomatik form)
+- [x] `[[Taraf1]]`, `[[Taraf2]]`, `[[Konu]]`, `[[Kapsam]]`
+- [x] `[[BaslangicTarihi]]`, `[[BitisTarihi]]`, `[[Sure]]`
+- [x] `[[Odeme]]`, `[[OdemeVadesi]]`, `[[Teminat]]`, `[[CezaiSart]]`
+- [x] `[[FesihYenileme]]`, `[[Teslimat]]`, `[[Garanti]]`, `[[CaymaHakki]]`, `[[Ekler]]`
+- [x] Placeholder'lar şablondan otomatik çıkarılır → üretim formunda dinamik alanlar oluşur
+
+### Üretim
+- [x] NPOI ile `.docx` yazma (`WordDocumentHelper.WriteDocument`)
+- [x] Doldurulmamış placeholder'lar temizlenir
+- [x] Başlık satırları ortalanır/kalınlaşır
+
+### AI Rolü (Onaylı tek buton)
+- [x] "AI" butonu → serbest metinden madde taslağı üretir (`AIService.DraftClauseAsync`)
+- [x] Sonuç alana eklenir, **kullanıcı düzenleyip** kaydedebilir
+- [x] Ollama kapalıysa buton bilgilendirir, işlem engellenir
+
+### Teknik
+- `ContractTemplates` tablosu (`DatabaseHelper.EnsureTablesExist` + `SeedDefaultTemplates`)
+- `Models/ContractTemplate.cs`, `Services/TemplateService.cs`
+- `Forms/TemplateListForm.cs`, `TemplateEditorForm.cs`, `GenerateFromTemplateForm.cs`
+- `MainScreen` → "📄 Şablonlar" butonu (pnlMenu alt bar)
 
 ---
 
@@ -436,7 +453,7 @@ Backups (
 | 4 | Faz 3: Otomatik Özet İyileştirme | Tamamlandı | Tamamlandı |
 | 5 | Faz 5: Kritik Tarihler | Tamamlandı | Tamamlandı |
 | 6 | Faz 6: Risk Kontrolü (Rules DB + AI prompt) | Tamamlandı | Tamamlandı |
-| 7 | Faz 8: Sözleşme Şablonları | Yeni | 1 hafta |
+| 7 | Faz 8: Sözleşme Şablonları | **Tamamlandı** | Tamamlandı |
 | 8 | Faz 7: Versiyon Takibi | **Ertelendi / Gerekmez** | — |
 | 9 | Faz 9: Export İyileştirme | İyileştirme | 3-4 gün |
 | 10 | Faz 10: Güvenlik | Yeni | 3-4 gün |
@@ -515,7 +532,7 @@ Backups (
 
 **Sonraki Aşama:**
 6. ~~➕ Versiyon takibi~~ → Ertelendi (tek seferlik imzalı arşiv)
-7. Şablonlar (Faz 8)
+7. ~~Şablonlar (Faz 8)~~ → Tamamlandı
 8. Export iyileştirmeleri (Faz 9)
 9. Yedekleme (Faz 13)
 10. Raporlama (Faz 11)

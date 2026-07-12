@@ -195,6 +195,171 @@ namespace ContractManagementSystem_CMS_.Services
             }
 
             SeedDefaultData();
+            SeedDefaultTemplates();
+        }
+
+        private static void SeedDefaultTemplates()
+        {
+            try
+            {
+                using var db = new SqlConnection(GetConnectionString());
+                db.Open();
+
+                var templates = GetBuiltInTemplates();
+                foreach (var t in templates)
+                {
+                    int cnt = db.ExecuteScalar<int>(
+                        "SELECT COUNT(*) FROM ContractTemplates WHERE TemplateName = @n AND IsBuiltIn = 1",
+                        new { n = t.Name });
+                    if (cnt == 0)
+                    {
+                        db.Execute(
+                            "INSERT INTO ContractTemplates (TemplateName, TemplateType, Content, IsBuiltIn, CreatedAt) VALUES (@n, @ty, @c, 1, GETDATE())",
+                            new { n = t.Name, ty = t.Type, c = t.Content });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.WriteLine($"[DatabaseHelper] Şablon tohumlama hatası: {ex.Message}");
+            }
+        }
+
+        private static List<(string Name, string Type, string Content)> GetBuiltInTemplates()
+        {
+            return new List<(string, string, string)>
+            {
+                (
+                    "Gizlilik Sözleşmesi (NDA)",
+                    "Gizlilik NDA",
+                    @"GİZLİLİK SÖZLEŞMESİ
+
+Madde 1 - Taraflar
+İşbu gizlilik sözleşmesi, bir tarafta [[Taraf1]] ile diğer tarafta [[Taraf2]] arasında akdedilmiştir.
+
+Madde 2 - Konu ve Kapsam
+Bu sözleşmenin konusu: [[Konu]]. Taraflar, paylaşılan gizli bilgilerin üçüncü kişilerle paylaşılmaması yükümlülüğünü kabul eder.
+
+Madde 3 - Gizli Bilginin Tanımı
+Gizli bilgi; teknik, ticari ve finansal tüm bilgileri kapsar. Kamuya açık olan ya da açıklama yükümlülüğü bulunan bilgiler kapsam dışındadır.
+
+Madde 4 - Yükümlülük Süresi
+Gizlilik yükümlülüğü, sözleşmenin imzalandığı [[BaslangicTarihi]] tarihinden itibaren [[Sure]] süreyle devam eder.
+
+Madde 5 - İstisnalar
+Aşağıdaki durumlar gizlilik yükümlülüğü kapsamı dışındadır:
+- Kamuya açık hale gelen bilgiler
+- Yasal zorunluluk gereği açıklama
+
+Madde 6 - Cezai Şart
+Bu sözleşmenin ihlali halinde [[CezaiSart]] uygulanır.
+
+Madde 7 - Ekler
+[[Ekler]]
+
+İmza:
+
+[[Taraf1]]
+
+[[Taraf2]]"
+                ),
+                (
+                    "Hizmet Sözleşmesi",
+                    "Hizmet",
+                    @"HİZMET SÖZLEŞMESİ
+
+Madde 1 - Taraflar
+[[Taraf1]] (Müşteri) ve [[Taraf2]] (Hizmet Sağlayıcı) arasında aşağıdaki hükümlerle anlaşmaya varılmıştır.
+
+Madde 2 - Hizmetin Konusu ve Kapsamı
+Hizmet sağlayıcı, [[Konu]] kapsamında aşağıdaki hizmetleri sunacaktır. Hizmet kapsamı: [[Kapsam]].
+
+Madde 3 - Süre
+Sözleşme [[BaslangicTarihi]] tarihinde başlar ve [[BitisTarihi]] tarihine kadar geçerlidir. Süre: [[Sure]].
+
+Madde 4 - Ücret ve Ödeme Koşulları
+Hizmet bedeli: [[Odeme]]. Ödeme vadesi: [[OdemeVadesi]].
+
+Madde 5 - Fesih ve Yenileme
+[[FesihYenileme]].
+
+Madde 6 - Gizlilik
+Taraflar, işbu sözleşme süresince öğrendikleri gizli bilgileri koruma yükümlülüğündedir.
+
+Madde 7 - Ekler
+[[Ekler]]
+
+İmza:
+
+[[Taraf1]]
+
+[[Taraf2]]"
+                ),
+                (
+                    "Satış / Teklif Sözleşmesi",
+                    "Satış",
+                    @"SATIŞ VE TEKLİF SÖZLEŞMESİ
+
+Madde 1 - Taraflar
+[[Taraf1]] (Satıcı) ve [[Taraf2]] (Alıcı) arasında aşağıdaki satış koşulları kararlaştırılmıştır.
+
+Madde 2 - Satış Konusu
+Satışa konu mal/hizmet: [[Konu]].
+
+Madde 3 - Satış Bedeli ve Ödeme
+Satış bedeli: [[Odeme]]. Ödeme koşulu: [[OdemeVadesi]].
+
+Madde 4 - Teslimat ve Teslim Koşulları
+Teslimat: [[Teslimat]]. Teslim tarihi: [[BitisTarihi]].
+
+Madde 5 - Garanti ve Ayıp Sorumluluğu
+Mal/hizmet [[Garanti]] kapsamında garanti altındadır (TKHK çerçevesinde en az 2 yıl).
+
+Madde 6 - Cayma Hakkı
+Alıcı, mesafeli satışta 14 gün içinde cayma hakkına sahiptir: [[CaymaHakki]].
+
+Madde 7 - Ekler
+[[Ekler]]
+
+İmza:
+
+[[Taraf1]]
+
+[[Taraf2]]"
+                ),
+                (
+                    "Kira Sözleşmesi (Basit)",
+                    "Kira",
+                    @"KİRA SÖZLEŞMESİ
+
+Madde 1 - Taraflar
+[[Taraf1]] (Kiracı) ve [[Taraf2]] (Kiraya Veren) arasında aşağıdaki kira koşulları kararlaştırılmıştır.
+
+Madde 2 - Kiralananın Konusu
+Kiralanan taşınmaz/konu: [[Konu]].
+
+Madde 3 - Kira Bedeli ve Depozito
+Aylık kira bedeli: [[Odeme]]. Depozito/teminat: [[Teminat]].
+
+Madde 4 - Süre
+Kira süresi [[BaslangicTarihi]] tarihinde başlar, [[BitisTarihi]] tarihinde biter. Süre: [[Sure]].
+
+Madde 5 - Fesih ve Bildirim Süresi
+[[FesihYenileme]].
+
+Madde 6 - Artış
+Kira artışı TÜFE oranını aşamaz.
+
+Madde 7 - Ekler
+[[Ekler]]
+
+İmza:
+
+[[Taraf1]]
+
+[[Taraf2]]"
+                )
+            };
         }
 
         private static void SeedDefaultData()
@@ -384,6 +549,29 @@ namespace ContractManagementSystem_CMS_.Services
                                     FOREIGN KEY (ContractId) REFERENCES Contracts(Id)
                                 )";
                             using (var createCmd = new SqlCommand(createDates, connection))
+                            {
+                                createCmd.ExecuteNonQuery();
+                            }
+                        }
+                    }
+
+                    // ContractTemplates tablosu var mı kontrol et
+                    string checkTemplates = "SELECT COUNT(*) FROM sys.tables WHERE name = 'ContractTemplates'";
+                    using (var cmd = new SqlCommand(checkTemplates, connection))
+                    {
+                        int exists = (int)cmd.ExecuteScalar();
+                        if (exists == 0)
+                        {
+                            string createTemplates = @"
+                                CREATE TABLE ContractTemplates (
+                                    Id INT IDENTITY(1,1) PRIMARY KEY,
+                                    TemplateName NVARCHAR(200) NOT NULL,
+                                    TemplateType NVARCHAR(100),
+                                    Content NVARCHAR(MAX),
+                                    IsBuiltIn BIT DEFAULT 0,
+                                    CreatedAt DATETIME DEFAULT GETDATE()
+                                )";
+                            using (var createCmd = new SqlCommand(createTemplates, connection))
                             {
                                 createCmd.ExecuteNonQuery();
                             }
