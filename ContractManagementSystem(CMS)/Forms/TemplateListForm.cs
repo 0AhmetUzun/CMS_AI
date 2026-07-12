@@ -11,12 +11,6 @@ namespace ContractManagementSystem_CMS_.Forms
     public partial class TemplateListForm : Form
     {
         private readonly TemplateService _templateService = new TemplateService();
-        private DataGridView dgvTemplates = new DataGridView();
-        private Button btnNew = new Button();
-        private Button btnEdit = new Button();
-        private Button btnDelete = new Button();
-        private Button btnGenerate = new Button();
-        private Button btnClose = new Button();
 
         public TemplateListForm()
         {
@@ -25,53 +19,9 @@ namespace ContractManagementSystem_CMS_.Forms
             LoadTemplates();
         }
 
-        private void InitializeComponent()
+        private void BtnClose_Click(object? sender, EventArgs e)
         {
-            this.Text = "Sözleşme Şablonları";
-            this.Size = new Size(640, 460);
-            this.StartPosition = FormStartPosition.CenterParent;
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-
-            dgvTemplates = new DataGridView
-            {
-                Location = new Point(12, 12),
-                Size = new Size(604, 340),
-                AllowUserToAddRows = false,
-                AllowUserToDeleteRows = false,
-                MultiSelect = false,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                ReadOnly = true
-            };
-            dgvTemplates.Columns.Add("TemplateName", "Şablon Adı");
-            dgvTemplates.Columns.Add("TemplateType", "Türü");
-            var builtInCol = new DataGridViewColumn(new DataGridViewTextBoxCell()) { Name = "BuiltIn", HeaderText = "Hazır", Width = 60 };
-            dgvTemplates.Columns.Add(builtInCol);
-            var idCol = new DataGridViewColumn(new DataGridViewTextBoxCell()) { Name = "Id", Visible = false };
-            dgvTemplates.Columns.Add(idCol);
-            dgvTemplates.Columns["TemplateName"].Width = 320;
-            dgvTemplates.Columns["TemplateType"].Width = 180;
-            dgvTemplates.CellDoubleClick += DgvTemplates_CellDoubleClick;
-            this.Controls.Add(dgvTemplates);
-
-            btnNew = new Button { Text = "➕ Yeni Oluştur", Location = new Point(12, 362), Size = new Size(140, 34) };
-            btnEdit = new Button { Text = "✏️ Düzenle", Location = new Point(162, 362), Size = new Size(120, 34) };
-            btnDelete = new Button { Text = "🗑️ Sil", Location = new Point(292, 362), Size = new Size(110, 34) };
-            btnGenerate = new Button { Text = "📄 Bu Şablondan Üret", Location = new Point(412, 362), Size = new Size(150, 34) };
-            btnClose = new Button { Text = "Kapat", Location = new Point(536, 408), Size = new Size(80, 28) };
-
-            btnNew.Click += BtnNew_Click;
-            btnEdit.Click += BtnEdit_Click;
-            btnDelete.Click += BtnDelete_Click;
-            btnGenerate.Click += BtnGenerate_Click;
-            btnClose.Click += (s, e) => this.Close();
-
-            this.Controls.Add(btnNew);
-            this.Controls.Add(btnEdit);
-            this.Controls.Add(btnDelete);
-            this.Controls.Add(btnGenerate);
-            this.Controls.Add(btnClose);
+            this.Close();
         }
 
         private void ApplyTheme()

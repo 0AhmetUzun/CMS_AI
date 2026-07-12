@@ -12,17 +12,15 @@ namespace ContractManagementSystem_CMS_.Forms
         private readonly TemplateService _templateService = new TemplateService();
         private readonly DatabaseService _dbService = new DatabaseService();
         private readonly ContractTemplate? _editing;
-        private TextBox txtName = new TextBox();
-        private ComboBox cmbType = new ComboBox();
-        private TextBox txtContent = new TextBox();
-        private Label lblHint = new Label();
-        private Button btnSave = new Button();
-        private Button btnCancel = new Button();
 
-        public TemplateEditorForm(ContractTemplate? template)
+        public TemplateEditorForm()
+        {
+            InitializeComponent();
+        }
+
+        public TemplateEditorForm(ContractTemplate? template) : this()
         {
             _editing = template;
-            InitializeComponent();
             ApplyTheme();
             LoadContractTypes();
 
@@ -39,56 +37,9 @@ namespace ContractManagementSystem_CMS_.Forms
             }
         }
 
-        private void InitializeComponent()
+        private void BtnCancel_Click(object? sender, EventArgs e)
         {
-            this.Size = new Size(680, 560);
-            this.StartPosition = FormStartPosition.CenterParent;
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-
-            var lblName = new Label { Text = "Şablon Adı:", Location = new Point(12, 14), Size = new Size(120, 20) };
-            txtName = new TextBox { Location = new Point(12, 36), Size = new Size(640, 24) };
-            var lblType = new Label { Text = "Türü:", Location = new Point(12, 70), Size = new Size(120, 20) };
-            cmbType = new ComboBox
-            {
-                Location = new Point(12, 92),
-                Size = new Size(640, 24),
-                DropDownStyle = ComboBoxStyle.DropDownList,
-                FlatStyle = FlatStyle.Flat
-            };
-            var lblContent = new Label { Text = "Şablon Metni (alanlar [[AlanAdi]] şeklinde yazılır):", Location = new Point(12, 126), Size = new Size(640, 20) };
-            txtContent = new TextBox
-            {
-                Location = new Point(12, 148),
-                Size = new Size(640, 320),
-                Multiline = true,
-                ScrollBars = ScrollBars.Vertical,
-                Font = new Font("Consolas", 9.5f)
-            };
-            lblHint = new Label
-            {
-                Text = "İpucu: [[Taraf1]] [[Taraf2]] [[Konu]] [[BaslangicTarihi]] [[BitisTarihi]] [[Sure]] [[Odeme]] [[FesihYenileme]] [[Ekler]] gibi alanlar, üretim sırasında otomatik form haline gelir.",
-                Location = new Point(12, 476),
-                Size = new Size(640, 32),
-                ForeColor = UIStyleHelper.SecondaryText,
-                Font = new Font("Segoe UI", 8.5f)
-            };
-            btnSave = new Button { Text = "Kaydet", Location = new Point(482, 488), Size = new Size(90, 30) };
-            btnCancel = new Button { Text = "İptal", Location = new Point(580, 488), Size = new Size(80, 30) };
-
-            btnSave.Click += BtnSave_Click;
-            btnCancel.Click += (s, e) => this.Close();
-
-            this.Controls.Add(lblName);
-            this.Controls.Add(txtName);
-            this.Controls.Add(lblType);
-            this.Controls.Add(cmbType);
-            this.Controls.Add(lblContent);
-            this.Controls.Add(txtContent);
-            this.Controls.Add(lblHint);
-            this.Controls.Add(btnSave);
-            this.Controls.Add(btnCancel);
+            this.Close();
         }
 
         private void ApplyTheme()

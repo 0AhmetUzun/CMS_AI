@@ -19,7 +19,6 @@
     <PackageReference Include="Dapper" Version="2.1.72" />
     <PackageReference Include="iTextSharp" Version="5.5.13.5" />
     <PackageReference Include="NPOI" Version="2.7.6" />
-    <PackageReference Include="OllamaSharp" Version="5.4.25" />
     <PackageReference Include="Select.HtmlToPdf.NetCore" Version="25.2.0" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
   </ItemGroup>

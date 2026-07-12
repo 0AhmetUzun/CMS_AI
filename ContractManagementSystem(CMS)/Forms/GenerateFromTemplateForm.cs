@@ -14,49 +14,25 @@ namespace ContractManagementSystem_CMS_.Forms
     {
         private readonly TemplateService _templateService = new TemplateService();
         private readonly AIService _aiService = new AIService();
-        private readonly ContractTemplate _template;
+        private readonly ContractTemplate? _template;
         private readonly Dictionary<string, TextBox> _fieldBoxes = new Dictionary<string, TextBox>();
-        private Panel pnlFields = new Panel();
-        private Button btnGenerate = new Button();
-        private Button btnClose = new Button();
-        private Label lblStatus = new Label();
 
-        public GenerateFromTemplateForm(ContractTemplate template)
+        public GenerateFromTemplateForm()
         {
-            _template = template;
             InitializeComponent();
             ApplyTheme();
-            BuildFields();
         }
 
-        private void InitializeComponent()
+        public GenerateFromTemplateForm(ContractTemplate template) : this()
         {
+            _template = template;
+            BuildFields();
             this.Text = "Şablondan Sözleşme Üret: " + _template.TemplateName;
-            this.Size = new Size(720, 600);
-            this.StartPosition = FormStartPosition.CenterParent;
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
+        }
 
-            pnlFields = new Panel
-            {
-                Location = new Point(12, 12),
-                Size = new Size(680, 480),
-                AutoScroll = true,
-                BorderStyle = BorderStyle.FixedSingle
-            };
-            this.Controls.Add(pnlFields);
-
-            btnGenerate = new Button { Text = "📄 Oluştur (.docx)", Location = new Point(470, 504), Size = new Size(140, 34) };
-            btnClose = new Button { Text = "Kapat", Location = new Point(620, 504), Size = new Size(80, 34) };
-            lblStatus = new Label { Location = new Point(12, 510), Size = new Size(440, 24), ForeColor = UIStyleHelper.SecondaryText };
-
-            btnGenerate.Click += BtnGenerate_Click;
-            btnClose.Click += (s, e) => this.Close();
-
-            this.Controls.Add(btnGenerate);
-            this.Controls.Add(btnClose);
-            this.Controls.Add(lblStatus);
+        private void BtnClose_Click(object? sender, EventArgs e)
+        {
+            this.Close();
         }
 
         private void ApplyTheme()
@@ -70,7 +46,7 @@ namespace ContractManagementSystem_CMS_.Forms
 
         private void BuildFields()
         {
-            var placeholders = _templateService.ExtractPlaceholders(_template.Content);
+            var placeholders = _templateService.ExtractPlaceholders(_template!.Content);
             if (placeholders.Count == 0)
             {
                 var lbl = new Label
@@ -171,7 +147,7 @@ namespace ContractManagementSystem_CMS_.Forms
             using (SaveFileDialog sfd = new SaveFileDialog
             {
                 Filter = "Word Belgesi (*.docx)|*.docx",
-                FileName = SanitizeFileName(_template.TemplateName) + ".docx"
+                FileName = SanitizeFileName(_template!.TemplateName) + ".docx"
             })
             {
                 if (sfd.ShowDialog() != DialogResult.OK) return;
@@ -179,7 +155,7 @@ namespace ContractManagementSystem_CMS_.Forms
                 try
                 {
                     var fields = _fieldBoxes.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Text);
-                    _templateService.GenerateDocument(_template.Id, fields, sfd.FileName);
+                    _templateService.GenerateDocument(_template!.Id, fields, sfd.FileName);
                     MessageBox.Show("Sözleşme başarıyla oluşturuldu:\n" + sfd.FileName, "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = sfd.FileName, UseShellExecute = true });
                     this.Close();

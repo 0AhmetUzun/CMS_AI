@@ -12,47 +12,22 @@ namespace ContractManagementSystem_CMS_.Forms
     public partial class DateManagementForm : Form
     {
         private readonly DateReminderService _dateService;
-        private FlowLayoutPanel _flpCards = null!;
-        private DataGridView _dgvMonth = null!;
-        private TabControl _tabControl = null!;
         private ContractDate? _selectedDate;
 
         public DateManagementForm()
         {
             _dateService = new DateReminderService();
             InitializeComponent();
+            SetupToolbar();
+            _flpCards.Click += (s, e) => ClearSelection();
+            UIStyleHelper.ApplyModernTableTheme(_dgvMonth);
             LoadDates(7);
         }
 
-        private void InitializeComponent()
+        private void SetupToolbar()
         {
-            this.Text = "Yaklaşan Tarihler ve Hatırlatıcılar";
-            this.Size = new Size(1000, 660);
-            this.StartPosition = FormStartPosition.CenterParent;
-            this.BackColor = UIStyleHelper.PrimaryBg;
-            this.ForeColor = UIStyleHelper.PrimaryText;
-            this.Font = new Font("Segoe UI", 10f);
-
-            // Üst panel
-            var topPanel = new Panel
-            {
-                Dock = DockStyle.Top,
-                Height = 56,
-                BackColor = UIStyleHelper.SecondaryBg,
-                Padding = new Padding(10, 8, 10, 8)
-            };
-
-            var lblFilter = new Label
-            {
-                Text = "Filtre:",
-                AutoSize = true,
-                ForeColor = UIStyleHelper.SecondaryText,
-                Location = new Point(12, 16)
-            };
-            topPanel.Controls.Add(lblFilter);
-
-            var filters = new[] { ("Yarın", 1), ("3 Gün", 3), ("7 Gün", 7), ("Bu Ay", DaysUntilEndOfMonth()), ("Tümü", 3650) };
             int x = 70;
+            var filters = new (string text, int days)[] { ("Yarın", 1), ("3 Gün", 3), ("7 Gün", 7), ("Bu Ay", DaysUntilEndOfMonth()), ("Tümü", 3650) };
             foreach (var (text, days) in filters)
             {
                 var btn = new Button { Text = text, Tag = days, Location = new Point(x, 12), Size = new Size(70, 32) };
@@ -76,38 +51,6 @@ namespace ContractManagementSystem_CMS_.Forms
             UIStyleHelper.ApplyButtonTheme(btnDelete, UIStyleHelper.AccentRed, Color.White);
             btnDelete.Click += BtnDelete_Click;
             topPanel.Controls.Add(btnDelete);
-
-            this.Controls.Add(topPanel);
-
-            // Sekme kontrolü
-            _tabControl = new TabControl
-            {
-                Dock = DockStyle.Fill,
-                BackColor = UIStyleHelper.PrimaryBg,
-                Padding = new Point(10, 4)
-            };
-
-            var tabCards = new TabPage { Text = "Kartlar", BackColor = UIStyleHelper.SecondaryBg, ForeColor = UIStyleHelper.PrimaryText };
-            _flpCards = new FlowLayoutPanel
-            {
-                Dock = DockStyle.Fill,
-                AutoScroll = true,
-                BackColor = UIStyleHelper.SecondaryBg,
-                Padding = new Padding(12),
-                WrapContents = true
-            };
-            _flpCards.Click += (s, e) => ClearSelection();
-            tabCards.Controls.Add(_flpCards);
-
-            var tabMonth = new TabPage { Text = "Aylık Liste", BackColor = UIStyleHelper.SecondaryBg, ForeColor = UIStyleHelper.PrimaryText };
-            _dgvMonth = new DataGridView { Dock = DockStyle.Fill, Margin = new Padding(10) };
-            UIStyleHelper.ApplyModernTableTheme(_dgvMonth);
-            _dgvMonth.SelectionChanged += DgvMonth_SelectionChanged;
-            tabMonth.Controls.Add(_dgvMonth);
-
-            _tabControl.TabPages.Add(tabCards);
-            _tabControl.TabPages.Add(tabMonth);
-            this.Controls.Add(_tabControl);
         }
 
         private static int DaysUntilEndOfMonth()

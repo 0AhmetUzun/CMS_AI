@@ -15,86 +15,21 @@ namespace ContractManagementSystem_CMS_.Forms
     public partial class LockScreenForm : Form
     {
         private readonly LockMode _mode;
-        private TextBox txtPin = new TextBox();
-        private Button btnUnlock = new Button();
-        private Button btnCancel = new Button();
-        private Label lblTitle = new Label();
-        private Label lblInfo = new Label();
-        private Label lblError = new Label();
         private int _failedAttempts = 0;
 
-        public LockScreenForm(LockMode mode)
+        public LockScreenForm()
         {
-            _mode = mode;
             InitializeComponent();
+            UIStyleHelper.ApplyButtonTheme(btnUnlock, UIStyleHelper.AccentBlue, Color.White);
+            UIStyleHelper.ApplyButtonTheme(btnCancel, UIStyleHelper.AccentBg, UIStyleHelper.PrimaryText);
         }
 
-        private void InitializeComponent()
+        public LockScreenForm(LockMode mode) : this()
         {
-            this.Text = "CMS - Kilit Ekranı";
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.StartPosition = FormStartPosition.CenterScreen;
-            this.Size = new Size(420, 260);
-            this.BackColor = UIStyleHelper.PrimaryBg;
-
-            lblTitle.Text = "🔒 Sözleşme Yönetim Sistemi";
-            lblTitle.Font = new Font("Segoe UI", 14f, FontStyle.Bold);
-            lblTitle.ForeColor = UIStyleHelper.PrimaryText;
-            lblTitle.AutoSize = false;
-            lblTitle.TextAlign = ContentAlignment.MiddleCenter;
-            lblTitle.Location = new Point(20, 20);
-            lblTitle.Size = new Size(380, 30);
-
-            lblInfo.Text = _mode == LockMode.Idle
+            _mode = mode;
+            lblInfo.Text = mode == LockMode.Idle
                 ? "Oturum boşta kaldığı için kilitlendi. Devam etmek için PIN girin."
                 : "Uygulamayı açmak için PIN girin.";
-            lblInfo.Font = new Font("Segoe UI", 9.5f);
-            lblInfo.ForeColor = UIStyleHelper.SecondaryText;
-            lblInfo.AutoSize = false;
-            lblInfo.TextAlign = ContentAlignment.MiddleCenter;
-            lblInfo.Location = new Point(20, 56);
-            lblInfo.Size = new Size(380, 36);
-
-            txtPin.Location = new Point(60, 100);
-            txtPin.Size = new Size(280, 26);
-            txtPin.Font = new Font("Segoe UI", 12f);
-            txtPin.PasswordChar = '●';
-            txtPin.BackColor = UIStyleHelper.SecondaryBg;
-            txtPin.ForeColor = UIStyleHelper.PrimaryText;
-            txtPin.BorderStyle = BorderStyle.FixedSingle;
-            txtPin.KeyDown += TxtPin_KeyDown;
-
-            lblError.Text = "";
-            lblError.Font = new Font("Segoe UI", 9f);
-            lblError.ForeColor = UIStyleHelper.AccentRed;
-            lblError.AutoSize = false;
-            lblError.TextAlign = ContentAlignment.MiddleCenter;
-            lblError.Location = new Point(20, 132);
-            lblError.Size = new Size(380, 22);
-
-            btnUnlock.Text = "Kilidi Aç";
-            btnUnlock.Location = new Point(60, 162);
-            btnUnlock.Size = new Size(135, 36);
-            UIStyleHelper.ApplyButtonTheme(btnUnlock, UIStyleHelper.AccentBlue, Color.White);
-            btnUnlock.Click += BtnUnlock_Click;
-
-            btnCancel.Text = "Çıkış";
-            btnCancel.Location = new Point(205, 162);
-            btnCancel.Size = new Size(135, 36);
-            UIStyleHelper.ApplyButtonTheme(btnCancel, UIStyleHelper.AccentBg, UIStyleHelper.PrimaryText);
-            btnCancel.Click += BtnCancel_Click;
-
-            this.Controls.Add(lblTitle);
-            this.Controls.Add(lblInfo);
-            this.Controls.Add(txtPin);
-            this.Controls.Add(lblError);
-            this.Controls.Add(btnUnlock);
-            this.Controls.Add(btnCancel);
-
-            this.AcceptButton = btnUnlock;
-            this.CancelButton = btnCancel;
         }
 
         private void TxtPin_KeyDown(object? sender, KeyEventArgs e)

@@ -10,42 +10,25 @@ namespace ContractManagementSystem_CMS_.Forms
 {
     public partial class UpcomingDatesForm : Form
     {
-        public UpcomingDatesForm(List<ContractDate> dates)
+        public UpcomingDatesForm()
         {
-            InitializeComponent(dates);
+            InitializeComponent();
+            StyleControls();
         }
 
-        private void InitializeComponent(List<ContractDate> dates)
+        public UpcomingDatesForm(List<ContractDate> dates) : this()
         {
-            this.Text = "⏰ Yaklaşan Kritik Tarihler";
-            this.Size = new Size(560, 420);
-            this.StartPosition = FormStartPosition.CenterScreen;
-            this.BackColor = UIStyleHelper.PrimaryBg;
-            this.ForeColor = UIStyleHelper.PrimaryText;
-            this.Font = new Font("Segoe UI", 10f);
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
+            Populate(dates);
+        }
 
-            var header = new Label
-            {
-                Text = $"Önümüzdeki günlerde {dates.Count} kritik tarih yaklaşıyor:",
-                ForeColor = UIStyleHelper.AccentOrange,
-                Font = new Font("Segoe UI", 11f, FontStyle.Bold),
-                Location = new Point(16, 14),
-                Size = new Size(520, 24)
-            };
-            this.Controls.Add(header);
+        private void StyleControls()
+        {
+            UIStyleHelper.ApplyButtonTheme(btnOk, UIStyleHelper.AccentBlue, Color.White);
+        }
 
-            var panel = new Panel
-            {
-                Location = new Point(16, 48),
-                Size = new Size(520, 300),
-                AutoScroll = true,
-                BackColor = UIStyleHelper.SecondaryBg,
-                BorderStyle = BorderStyle.FixedSingle
-            };
-            this.Controls.Add(panel);
+        private void Populate(List<ContractDate> dates)
+        {
+            header.Text = $"Önümüzdeki günlerde {dates.Count} kritik tarih yaklaşıyor:";
 
             int y = 10;
             foreach (var d in dates)
@@ -89,17 +72,6 @@ namespace ContractManagementSystem_CMS_.Forms
                 panel.Controls.Add(row);
                 y += 64;
             }
-
-            var btnOk = new Button
-            {
-                Text = "Tamam",
-                Location = new Point(456, 360),
-                Width = 80,
-                DialogResult = DialogResult.OK
-            };
-            UIStyleHelper.ApplyButtonTheme(btnOk, UIStyleHelper.AccentBlue, Color.White);
-            this.Controls.Add(btnOk);
-            this.AcceptButton = btnOk;
         }
     }
 }
