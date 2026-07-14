@@ -55,20 +55,9 @@ namespace ContractManagementSystem_CMS_.Forms
             btnRefresh.FlatAppearance.BorderColor = UIStyleHelper.BorderColor;
             btnRefresh.FlatAppearance.BorderSize = 1;
 
-            btnOpen.BackColor = UIStyleHelper.AccentGreen;
-            btnOpen.ForeColor = Color.White;
-            btnOpen.FlatStyle = FlatStyle.Flat;
-            btnOpen.FlatAppearance.BorderSize = 0;
-
-            btnDetail.BackColor = UIStyleHelper.AccentBlue;
-            btnDetail.ForeColor = Color.White;
-            btnDetail.FlatStyle = FlatStyle.Flat;
-            btnDetail.FlatAppearance.BorderSize = 0;
-
-            btnDelete.BackColor = UIStyleHelper.AccentRed;
-            btnDelete.ForeColor = Color.White;
-            btnDelete.FlatStyle = FlatStyle.Flat;
-            btnDelete.FlatAppearance.BorderSize = 0;
+            StyleBottomButton(btnOpen, UIStyleHelper.AccentGreen);
+            StyleBottomButton(btnDetail, UIStyleHelper.AccentBlue);
+            StyleBottomButton(btnDelete, UIStyleHelper.AccentRed);
 
             lblContractType.ForeColor = UIStyleHelper.SecondaryText;
             cmbContractType.BackColor = UIStyleHelper.AccentBg;
@@ -81,6 +70,25 @@ namespace ContractManagementSystem_CMS_.Forms
             btnUpload.FlatAppearance.BorderSize = 0;
 
             UIStyleHelper.ApplyModernTableTheme(dgvContracts);
+        }
+
+        private void StyleBottomButton(Button btn, Color backColor)
+        {
+            btn.BackColor = backColor;
+            btn.ForeColor = Color.White;
+            btn.FlatStyle = FlatStyle.Flat;
+            btn.FlatAppearance.BorderSize = 0;
+            btn.Paint += (s, e) =>
+            {
+                e.Graphics.Clear(backColor);
+                TextRenderer.DrawText(
+                    e.Graphics,
+                    btn.Text,
+                    btn.Font,
+                    btn.ClientRectangle,
+                    Color.White,
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+            };
         }
 
         private void LoadContracts()

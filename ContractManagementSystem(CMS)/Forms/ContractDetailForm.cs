@@ -108,7 +108,7 @@ namespace ContractManagementSystem_CMS_.Forms
             {
                 Text = displayName,
                 Font = new Font("Segoe UI", 10f, FontStyle.Bold),
-                ForeColor = UIStyleHelper.AccentBlue,
+                ForeColor = Color.White,
                 Location = new Point(10, 5),
                 AutoSize = true
             };

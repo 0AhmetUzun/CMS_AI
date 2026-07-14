@@ -136,6 +136,11 @@ namespace ContractManagementSystem_CMS_.Forms
             this.cmbIdle.Location = new System.Drawing.Point(170, 164);
             this.cmbIdle.Name = "cmbIdle";
             this.cmbIdle.Size = new System.Drawing.Size(120, 24);
+            this.cmbIdle.Items.AddRange(new object[] {
+            "5 dakika",
+            "10 dakika",
+            "30 dakika",
+            "60 dakika"});
             // 
             // lblStatus
             // 

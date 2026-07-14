@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
 using System.IO;
@@ -407,9 +407,9 @@ Madde 7 - Ekler
                 // 1. Sözleşme türlerini sağlama al (isme göre idempotent)
                 var types = new[]
                 {
-                    "Kira Sozlesmesi", "Is Sozlesmesi", "Satis Sozlesmesi", "Danismanlik Sozlesmesi",
-                    "Hizmet Sozlesmesi", "Odunc Kredi Sozlesmesi", "Sigorta Sozlesmesi",
-                    "Bayilik Sozlesmesi", "Gizlilik NDA Sozlesmesi", "Abonelik Uyelik Sozlesmesi"
+                    "Kira Sözleşmesi", "İş Sözleşmesi", "Satış Sözleşmesi", "Danışmanlık Sözleşmesi",
+                    "Hizmet Sözleşmesi", "Ödünç Kredi Sözleşmesi", "Sigorta Sözleşmesi",
+                    "Bayilik Sözleşmesi", "Gizlilik NDA Sözleşmesi", "Abonelik Üyelik Sözleşmesi"
                 };
                 foreach (var t in types)
                 {
@@ -422,68 +422,68 @@ Madde 7 - Ekler
                 var rules = new List<(string Type, string Desc, string Pattern, bool Forbidden, int Sev)>
                 {
                     // --- 1 Kira ---
-                    ("Kira Sozlesmesi", "Kira bedeli belirtilmeli", @"kira\s*bedel|aylık\s*kira|kira\s*ücret|\d+\s*(tl|₺)", false, 10),
-                    ("Kira Sozlesmesi", "Depozito/teminat belirtilmeli", @"depozito|teminat|güvence", false, 8),
-                    ("Kira Sozlesmesi", "Fesih bildirim süresi belirtilmeli (belirsiz fesih)", @"fesih\s*bildirim|ihbar\s*süre|tahliye\s*bildirim", false, 12),
-                    ("Kira Sozlesmesi", "Otomatik yenileme uyarısı", @"otomatik\s*yenile|kendiliğinden\s*yenile|süresiz\s*kira", true, 10),
-                    ("Kira Sozlesmesi", "Kira artışı TÜFE aşımı uyarısı", @"enflasyon.*üstü|tüfe.*üstü|artış.*sınırsız", true, 8),
+                    ("Kira Sözleşmesi", "Kira bedeli belirtilmeli", @"kira\s*bedel|aylık\s*kira|kira\s*ücret|\d+\s*(tl|₺)", false, 10),
+                    ("Kira Sözleşmesi", "Depozito/teminat belirtilmeli", @"depozito|teminat|güvence", false, 8),
+                    ("Kira Sözleşmesi", "Fesih bildirim süresi belirtilmeli (belirsiz fesih)", @"fesih\s*bildirim|ihbar\s*süre|tahliye\s*bildirim", false, 12),
+                    ("Kira Sözleşmesi", "Otomatik yenileme uyarısı", @"otomatik\s*yenile|kendiliğinden\s*yenile|süresiz\s*kira", true, 10),
+                    ("Kira Sözleşmesi", "Kira artışı TÜFE aşımı uyarısı", @"enflasyon.*üstü|tüfe.*üstü|artış.*sınırsız", true, 8),
 
                     // --- 2 İş ---
-                    ("Is Sozlesmesi", "Deneme süresi belirtilmeli", @"deneme\s*süre|dene[mn]e\s*süre", false, 8),
-                    ("Is Sozlesmesi", "Fesih ihbar süresi belirtilmeli", @"ihbar\s*süre|fesih\s*bildirim|aylık\s*ücret.*bildirim", false, 12),
-                    ("Is Sozlesmesi", "Cezai şart/tazminat belirtilmeli", @"cezai\s*şart|ceza\s*tazminat", false, 8),
-                    ("Is Sozlesmesi", "Rekabet yasağı süre/coğrafya sınırı", @"rekabet\s*yasağı|rekabet\s*etmeme", false, 6),
-                    ("Is Sozlesmesi", "Gizlilik yükümlülüğü", @"gizlilik|sır\s*saklama", false, 6),
+                    ("İş Sözleşmesi", "Deneme süresi belirtilmeli", @"deneme\s*süre|dene[mn]e\s*süre", false, 8),
+                    ("İş Sözleşmesi", "Fesih ihbar süresi belirtilmeli", @"ihbar\s*süre|fesih\s*bildirim|aylık\s*ücret.*bildirim", false, 12),
+                    ("İş Sözleşmesi", "Cezai şart/tazminat belirtilmeli", @"cezai\s*şart|ceza\s*tazminat", false, 8),
+                    ("İş Sözleşmesi", "Rekabet yasağı süre/coğrafya sınırı", @"rekabet\s*yasağı|rekabet\s*etmeme", false, 6),
+                    ("İş Sözleşmesi", "Gizlilik yükümlülüğü", @"gizlilik|sır\s*saklama", false, 6),
 
                     // --- 3 Satış ---
-                    ("Satis Sozlesmesi", "Satış bedeli/net fiyat belirtilmeli", @"satış\s*bedel|satış\s*fiyat|alış\s*fiyat", false, 10),
-                    ("Satis Sozlesmesi", "Teslim tarihi/koşulu belirtilmeli", @"teslim\s*tarih|teslim\s*koşul|teslimat", false, 8),
-                    ("Satis Sozlesmesi", "Ayıp/garanti sorumluluğu (TKHK 2 yıl)", @"garanti|ayıp|zilyetlik|ayıplı", false, 8),
-                    ("Satis Sozlesmesi", "Ödeme vadesi/net tarih belirtilmeli", @"vade|net\s*\d+|ödeme\s*tarih|son\s*ödeme", false, 10),
-                    ("Satis Sozlesmesi", "Cayma hakkı (mesafeli satış)", @"cayma\s*hakk|14\s*gün.*cayma", false, 6),
+                    ("Satış Sözleşmesi", "Satış bedeli/net fiyat belirtilmeli", @"satış\s*bedel|satış\s*fiyat|alış\s*fiyat", false, 10),
+                    ("Satış Sözleşmesi", "Teslim tarihi/koşulu belirtilmeli", @"teslim\s*tarih|teslim\s*koşul|teslimat", false, 8),
+                    ("Satış Sözleşmesi", "Ayıp/garanti sorumluluğu (TKHK 2 yıl)", @"garanti|ayıp|zilyetlik|ayıplı", false, 8),
+                    ("Satış Sözleşmesi", "Ödeme vadesi/net tarih belirtilmeli", @"vade|net\s*\d+|ödeme\s*tarih|son\s*ödeme", false, 10),
+                    ("Satış Sözleşmesi", "Cayma hakkı (mesafeli satış)", @"cayma\s*hakk|14\s*gün.*cayma", false, 6),
 
                     // --- 4 Danışmanlık ---
-                    ("Danismanlik Sozlesmesi", "Ücret/saat ücreti belirtilmeli", @"saat\s*ücret|danışmanlık\s*ücret|aylık\s*ücret", false, 10),
-                    ("Danismanlik Sozlesmesi", "Kapsam/görev tanımı belirtilmeli", @"kapsam|görev\s*tanım|hizmet\s*kapsam", false, 8),
-                    ("Danismanlik Sozlesmesi", "Gizlilik yükümlülüğü", @"gizlilik|sır\s*saklama", false, 8),
-                    ("Danismanlik Sozlesmesi", "Fikri mülkiyet devri/netleşmeli", @"fikri\s*mülkiyet|telif|mülkiyet\s*devr", false, 6),
+                    ("Danışmanlık Sözleşmesi", "Ücret/saat ücreti belirtilmeli", @"saat\s*ücret|danışmanlık\s*ücret|aylık\s*ücret", false, 10),
+                    ("Danışmanlık Sözleşmesi", "Kapsam/görev tanımı belirtilmeli", @"kapsam|görev\s*tanım|hizmet\s*kapsam", false, 8),
+                    ("Danışmanlık Sözleşmesi", "Gizlilik yükümlülüğü", @"gizlilik|sır\s*saklama", false, 8),
+                    ("Danışmanlık Sözleşmesi", "Fikri mülkiyet devri/netleşmeli", @"fikri\s*mülkiyet|telif|mülkiyet\s*devr", false, 6),
 
                     // --- 5 Hizmet ---
-                    ("Hizmet Sozlesmesi", "Hizmet kapsamı/net tarif belirtilmeli", @"hizmet\s*kapsam|kapsam|tarif", false, 10),
-                    ("Hizmet Sozlesmesi", "Ücret ve ödeme koşulu belirtilmeli", @"ücret|servis\s*bedel|ödeme\s*koşul", false, 8),
-                    ("Hizmet Sozlesmesi", "Süre/başlangıç-bitiş belirtilmeli", @"sözleşme\s*süre|başlangıç\s*tarih|bitiş\s*tarih|\d+\s*ay", false, 8),
-                    ("Hizmet Sozlesmesi", "Ayıplı hizmet sorumluluğu (TKHK)", @"ayıplı\s*hizmet|hizmet\s*ayıp", false, 6),
+                    ("Hizmet Sözleşmesi", "Hizmet kapsamı/net tarif belirtilmeli", @"hizmet\s*kapsam|kapsam|tarif", false, 10),
+                    ("Hizmet Sözleşmesi", "Ücret ve ödeme koşulu belirtilmeli", @"ücret|servis\s*bedel|ödeme\s*koşul", false, 8),
+                    ("Hizmet Sözleşmesi", "Süre/başlangıç-bitiş belirtilmeli", @"sözleşme\s*süre|başlangıç\s*tarih|bitiş\s*tarih|\d+\s*ay", false, 8),
+                    ("Hizmet Sözleşmesi", "Ayıplı hizmet sorumluluğu (TKHK)", @"ayıplı\s*hizmet|hizmet\s*ayıp", false, 6),
 
                     // --- 6 Ödünç/Kredi ---
-                    ("Odunc Kredi Sozlesmesi", "Anapara/tutar belirtilmeli", @"anapara|kredi\s*tutar|ödünç\s*tutar", false, 10),
-                    ("Odunc Kredi Sozlesmesi", "Faiz oranı açıkça belirtilmeli", @"faiz\s*oran|yıllık\s*faiz|toplam\s*maliyet", false, 10),
-                    ("Odunc Kredi Sozlesmesi", "Vade/geri ödeme planı belirtilmeli", @"vade|geri\s*ödeme|taksit\s*plan", false, 8),
-                    ("Odunc Kredi Sozlesmesi", "Erken ödeme indirimi (TKHK)", @"erken\s*ödeme|erken\s*kapan", false, 6),
-                    ("Odunc Kredi Sozlesmesi", "Gecikme cezası oranı belirtilmeli", @"gecikme\s*ceza|gecikme\s*faiz", false, 8),
+                    ("Ödünç Kredi Sözleşmesi", "Anapara/tutar belirtilmeli", @"anapara|kredi\s*tutar|ödünç\s*tutar", false, 10),
+                    ("Ödünç Kredi Sözleşmesi", "Faiz oranı açıkça belirtilmeli", @"faiz\s*oran|yıllık\s*faiz|toplam\s*maliyet", false, 10),
+                    ("Ödünç Kredi Sözleşmesi", "Vade/geri ödeme planı belirtilmeli", @"vade|geri\s*ödeme|taksit\s*plan", false, 8),
+                    ("Ödünç Kredi Sözleşmesi", "Erken ödeme indirimi (TKHK)", @"erken\s*ödeme|erken\s*kapan", false, 6),
+                    ("Ödünç Kredi Sözleşmesi", "Gecikme cezası oranı belirtilmeli", @"gecikme\s*ceza|gecikme\s*faiz", false, 8),
 
                     // --- 7 Sigorta ---
-                    ("Sigorta Sozlesmesi", "Teminat/kapsam belirtilmeli", @"teminat\s*kapsam|sigorta\s*kapsam|teminat", false, 10),
-                    ("Sigorta Sozlesmesi", "Prim tutarı/ödeme dönemi belirtilmeli", @"prim\s*tutar|prim\s*ödeme|yıllık\s*prim", false, 8),
-                    ("Sigorta Sozlesmesi", "İstisnalar net değilse risk", @"istisna|kapsam\s*dışı|temin\s*etmez", false, 8),
-                    ("Sigorta Sozlesmesi", "İhbar yükümlülüğü belirtilmeli", @"ihbar\s*yüküm|hasar\s*ihbar|bildirim\s*yüküm", false, 6),
+                    ("Sigorta Sözleşmesi", "Teminat/kapsam belirtilmeli", @"teminat\s*kapsam|sigorta\s*kapsam|teminat", false, 10),
+                    ("Sigorta Sözleşmesi", "Prim tutarı/ödeme dönemi belirtilmeli", @"prim\s*tutar|prim\s*ödeme|yıllık\s*prim", false, 8),
+                    ("Sigorta Sözleşmesi", "İstisnalar net değilse risk", @"istisna|kapsam\s*dışı|temin\s*etmez", false, 8),
+                    ("Sigorta Sözleşmesi", "İhbar yükümlülüğü belirtilmeli", @"ihbar\s*yüküm|hasar\s*ihbar|bildirim\s*yüküm", false, 6),
 
                     // --- 8 Bayilik ---
-                    ("Bayilik Sozlesmesi", "Süre/bölge belirtilmeli", @"sözleşme\s*süre|münhasır\s*bölge|bölge\s*sınır", false, 10),
-                    ("Bayilik Sozlesmesi", "Gizlilik/marka kullanımı belirtilmeli", @"gizlilik|marka\s*kullanım|ticari\s*sır", false, 8),
-                    ("Bayilik Sozlesmesi", "Rekabet yasağı belirtilmeli", @"rekabet\s*yasağı|rakip\s*çalışma", false, 6),
-                    ("Bayilik Sozlesmesi", "Fesih/tazminat koşulu belirtilmeli", @"fesih\s*koşul|erken\s*fesih\s*ceza", false, 8),
+                    ("Bayilik Sözleşmesi", "Süre/bölge belirtilmeli", @"sözleşme\s*süre|münhasır\s*bölge|bölge\s*sınır", false, 10),
+                    ("Bayilik Sözleşmesi", "Gizlilik/marka kullanımı belirtilmeli", @"gizlilik|marka\s*kullanım|ticari\s*sır", false, 8),
+                    ("Bayilik Sözleşmesi", "Rekabet yasağı belirtilmeli", @"rekabet\s*yasağı|rakip\s*çalışma", false, 6),
+                    ("Bayilik Sözleşmesi", "Fesih/tazminat koşulu belirtilmeli", @"fesih\s*koşul|erken\s*fesih\s*ceza", false, 8),
 
                     // --- 9 Gizlilik (NDA) ---
-                    ("Gizlilik NDA Sozlesmesi", "Gizli bilgi tanımı belirtilmeli", @"gizli\s*bilgi|sır\s*bilgi|gizlilik\s*kapsam", false, 10),
-                    ("Gizlilik NDA Sozlesmesi", "Yükümlülük süresi net belirtilmeli", @"süre\s*\d+\s*yıl|yürürlük\s*süre|gizlilik\s*süre", false, 8),
-                    ("Gizlilik NDA Sozlesmesi", "İstisnalar belirtilmeli", @"istisna|kamuya\s*açık|zorunlu\s*açıklama", false, 6),
-                    ("Gizlilik NDA Sozlesmesi", "Cezai şart belirtilmeli", @"cezai\s*şart|ihlal\s*ceza", false, 8),
+                    ("Gizlilik NDA Sözleşmesi", "Gizli bilgi tanımı belirtilmeli", @"gizli\s*bilgi|sır\s*bilgi|gizlilik\s*kapsam", false, 10),
+                    ("Gizlilik NDA Sözleşmesi", "Yükümlülük süresi net belirtilmeli", @"süre\s*\d+\s*yıl|yürürlük\s*süre|gizlilik\s*süre", false, 8),
+                    ("Gizlilik NDA Sözleşmesi", "İstisnalar belirtilmeli", @"istisna|kamuya\s*açık|zorunlu\s*açıklama", false, 6),
+                    ("Gizlilik NDA Sözleşmesi", "Cezai şart belirtilmeli", @"cezai\s*şart|ihlal\s*ceza", false, 8),
 
                     // --- 10 Abonelik/Üyelik ---
-                    ("Abonelik Uyelik Sozlesmesi", "Otomatik yenileme + iptal koşulu (kritik red flag)", @"otomatik\s*yenile|kendiliğinden\s*uzar|yenileme\s*otomatik", true, 12),
-                    ("Abonelik Uyelik Sozlesmesi", "İptal/çıkış koşulu belirtilmeli", @"iptal\s*koşul|üyelikten\s*çık|fesih\s*hakk", false, 10),
-                    ("Abonelik Uyelik Sozlesmesi", "Ücret/yenileme bedeli belirtilmeli", @"aylık\s*ücret|yıllık\s*ücret|yenileme\s*bedel", false, 8),
-                    ("Abonelik Uyelik Sozlesmesi", "Deneme süresi/ücretsiz dönem belirtilmeli", @"deneme\s*süre|ücretsiz\s*dönem|ücretsiz\s*deneme", false, 6)
+                    ("Abonelik Üyelik Sözleşmesi", "Otomatik yenileme + iptal koşulu (kritik red flag)", @"otomatik\s*yenile|kendiliğinden\s*uzar|yenileme\s*otomatik", true, 12),
+                    ("Abonelik Üyelik Sözleşmesi", "İptal/çıkış koşulu belirtilmeli", @"iptal\s*koşul|üyelikten\s*çık|fesih\s*hakk", false, 10),
+                    ("Abonelik Üyelik Sözleşmesi", "Ücret/yenileme bedeli belirtilmeli", @"aylık\s*ücret|yıllık\s*ücret|yenileme\s*bedel", false, 8),
+                    ("Abonelik Üyelik Sözleşmesi", "Deneme süresi/ücretsiz dönem belirtilmeli", @"deneme\s*süre|ücretsiz\s*dönem|ücretsiz\s*deneme", false, 6)
                 };
 
                 foreach (var r in rules)

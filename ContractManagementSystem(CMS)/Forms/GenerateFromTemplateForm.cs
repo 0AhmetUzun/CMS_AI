@@ -30,18 +30,12 @@ namespace ContractManagementSystem_CMS_.Forms
             this.Text = "Şablondan Sözleşme Üret: " + _template.TemplateName;
         }
 
-        private void BtnClose_Click(object? sender, EventArgs e)
-        {
-            this.Close();
-        }
-
         private void ApplyTheme()
         {
             this.BackColor = UIStyleHelper.PrimaryBg;
             this.ForeColor = UIStyleHelper.PrimaryText;
             pnlFields.BackColor = UIStyleHelper.AccentBg;
-            UIStyleHelper.ApplyButtonTheme(btnGenerate, UIStyleHelper.AccentTeal, Color.White);
-            UIStyleHelper.ApplyButtonTheme(btnClose, UIStyleHelper.AccentBg, UIStyleHelper.PrimaryText);
+            UIStyleHelper.ApplyButtonTheme(btnGenerate, Color.FromArgb(0, 120, 215), Color.White);
         }
 
         private void BuildFields()

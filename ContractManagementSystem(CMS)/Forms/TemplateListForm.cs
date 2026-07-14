@@ -19,11 +19,6 @@ namespace ContractManagementSystem_CMS_.Forms
             LoadTemplates();
         }
 
-        private void BtnClose_Click(object? sender, EventArgs e)
-        {
-            this.Close();
-        }
-
         private void ApplyTheme()
         {
             this.BackColor = UIStyleHelper.PrimaryBg;
@@ -32,8 +27,7 @@ namespace ContractManagementSystem_CMS_.Forms
             UIStyleHelper.ApplyButtonTheme(btnNew, UIStyleHelper.AccentGreen, Color.White);
             UIStyleHelper.ApplyButtonTheme(btnEdit, UIStyleHelper.AccentBlue, Color.White);
             UIStyleHelper.ApplyButtonTheme(btnDelete, UIStyleHelper.AccentRed, Color.White);
-            UIStyleHelper.ApplyButtonTheme(btnGenerate, UIStyleHelper.AccentTeal, Color.White);
-            UIStyleHelper.ApplyButtonTheme(btnClose, UIStyleHelper.AccentBg, UIStyleHelper.PrimaryText);
+            UIStyleHelper.ApplyButtonTheme(btnGenerate, Color.FromArgb(50, 50, 50), Color.White);
         }
 
         private void LoadTemplates()

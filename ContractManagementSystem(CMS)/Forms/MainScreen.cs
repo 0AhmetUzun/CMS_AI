@@ -369,10 +369,16 @@ namespace ContractManagementSystem_CMS_
                 var allTypes = _dbService.GetAllTypes();
                 if (allTypes?.Count > 0)
                 {
-                    comboboxContractType.DataSource = allTypes;
+                    var typesWithPlaceholder = new List<ContractTypes>
+                    {
+                        new ContractTypes { Id = -1, TypeName = "Lütfen bir sözleşme türü seçin" }
+                    };
+                    typesWithPlaceholder.AddRange(allTypes);
+
+                    comboboxContractType.DataSource = typesWithPlaceholder;
                     comboboxContractType.DisplayMember = "TypeName";
                     comboboxContractType.ValueMember = "Id";
-                    comboboxContractType.SelectedIndex = -1;
+                    comboboxContractType.SelectedIndex = 0;
                 }
                 comboboxContractType.SelectedIndexChanged += comboboxContractType_SelectedIndexChanged;
             }
@@ -392,7 +398,7 @@ namespace ContractManagementSystem_CMS_
                 MessageBox.Show("Lütfen bir sözleşme yükleyin.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-            if (comboboxContractType.SelectedValue == null || !int.TryParse(comboboxContractType.SelectedValue.ToString(), out int selectedId))
+            if (comboboxContractType.SelectedValue == null || !int.TryParse(comboboxContractType.SelectedValue.ToString(), out int selectedId) || selectedId <= 0)
             {
                 MessageBox.Show("Lütfen bir sözleşme türü seçin.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -820,6 +826,11 @@ namespace ContractManagementSystem_CMS_
         private void richTextBoxViewContract_TextChanged(object sender, EventArgs e)
         {
             _lastAnalysisResult = null;
+        }
+
+        private void splitContainer1_SplitterMoved(object sender, SplitterEventArgs e)
+        {
+
         }
     }
 }

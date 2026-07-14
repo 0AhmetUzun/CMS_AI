@@ -1,4 +1,4 @@
-IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'ContractTypes')
+﻿IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'ContractTypes')
 BEGIN
     CREATE TABLE ContractTypes (
         Id INT IDENTITY(1,1) PRIMARY KEY,
@@ -70,29 +70,29 @@ GO
 IF NOT EXISTS (SELECT * FROM ContractTypes)
 BEGIN
     INSERT INTO ContractTypes (TypeName) VALUES
-    ('Kira Sozlesmesi'),
-    ('Is Sozlesmesi'),
-    ('Satis Sozlesmesi'),
-    ('Danismanlik Sozlesmesi'),
-    ('Hizmet Sozlesmesi'),
-    ('Odunc Kredi Sozlesmesi'),
-    ('Sigorta Sozlesmesi'),
-    ('Bayilik Sozlesmesi'),
-    ('Gizlilik NDA Sozlesmesi'),
-    ('Abonelik Uyelik Sozlesmesi');
+    ('Kira Sözleşmesi'),
+    ('İş Sözleşmesi'),
+    ('Satış Sözleşmesi'),
+    ('Danışmanlık Sözleşmesi'),
+    ('Hizmet Sözleşmesi'),
+    ('Ödünç Kredi Sözleşmesi'),
+    ('Sigorta Sözleşmesi'),
+    ('Bayilik Sözleşmesi'),
+    ('Gizlilik NDA Sözleşmesi'),
+    ('Abonelik Üyelik Sözleşmesi');
 END;
 GO
 
 IF NOT EXISTS (SELECT * FROM Rules)
 BEGIN
     INSERT INTO Rules (TypeId, RuleDescription, Pattern, IsForbidden, Severity) VALUES
-    (1, 'Kira suresi 12 aydan kisa olamaz', '\b(\d{1,2})\s*ay\b', 0, 5),
+    (1, 'Kira süresi 12 aydan kısa olamaz', '\b(\d{1,2})\s*ay\b', 0, 5),
     (1, 'Kira bedeli nakit olamaz', '\bnakit\b', 1, 20),
-    (2, 'Deneme suresi 3 aydan fazla olamaz', 'deneme\s*sure[s]?[i]?\s*[:=]?\s*(\d+)', 0, 10),
-    (2, 'Fesih ihbar suresi 30 gun az olamaz', 'ihbar\s*(?:suresi|suresi)\s*[:=]?\s*(\d+)', 0, 15),
-    (3, 'Odeme vadesi 60 gunu gecemez', 'vade\s*[:=]?\s*(\d+)\s*gun', 0, 10),
-    (3, 'KDV dahil ifadesi bulunmalidir', 'KDV\s*dahil', 0, 5),
-    (4, 'Danisman haftada 20 saatten fazla calisamaz', '(\d+)\s*saat\s*/\s*hafta', 0, 10),
+    (2, 'Deneme süresi 3 aydan fazla olamaz', 'deneme\s*sure[s]?[i]?\s*[:=]?\s*(\d+)', 0, 10),
+    (2, 'Fesih ihbar süresi 30 günden az olamaz', 'ihbar\s*(?:suresi|suresi)\s*[:=]?\s*(\d+)', 0, 15),
+    (3, 'Ödeme vadesi 60 günü geçemez', 'vade\s*[:=]?\s*(\d+)\s*gun', 0, 10),
+    (3, 'KDV dahil ifadesi bulunmalıdır', 'KDV\s*dahil', 0, 5),
+    (4, 'Danışman haftada 20 saatten fazla çalışamaz', '(\d+)\s*saat\s*/\s*hafta', 0, 10),
     (4, 'Gizlilik maddesi zorunludur', 'gizlilik', 0, 25);
 END;
 GO

@@ -268,7 +268,7 @@ namespace ContractManagementSystem_CMS_.Forms
                 Text = isNew ? "Yeni Tarih Ekle" : "Tarihi Düzenle",
                 Size = new Size(420, 320),
                 StartPosition = FormStartPosition.CenterParent,
-                BackColor = UIStyleHelper.PrimaryBg,
+                BackColor = UIStyleHelper.AccentBg,
                 ForeColor = UIStyleHelper.PrimaryText,
                 Font = new Font("Segoe UI", 10f)
             };
@@ -294,10 +294,10 @@ namespace ContractManagementSystem_CMS_.Forms
             var lblNote = new Label { Text = "Not:", Location = new Point(20, 164), AutoSize = true, ForeColor = UIStyleHelper.SecondaryText };
             var txtNote = new TextBox { Location = new Point(140, 160), Width = 240, Text = source.Note ?? "" };
 
-            var btnOk = new Button { Text = "Kaydet", Location = new Point(140, 230), Width = 110, DialogResult = DialogResult.OK };
+            var btnOk = new Button { Text = "Kaydet", Location = new Point(140, 230), Size = new Size(120, 36), DialogResult = DialogResult.OK };
             UIStyleHelper.ApplyButtonTheme(btnOk, UIStyleHelper.AccentGreen, Color.White);
-            var btnCancel = new Button { Text = "İptal", Location = new Point(270, 230), Width = 110, DialogResult = DialogResult.Cancel };
-            UIStyleHelper.ApplyButtonTheme(btnCancel, UIStyleHelper.AccentBg, UIStyleHelper.PrimaryText);
+            var btnCancel = new Button { Text = "İptal", Location = new Point(270, 230), Size = new Size(120, 36), DialogResult = DialogResult.Cancel };
+            UIStyleHelper.ApplyButtonTheme(btnCancel, Color.FromArgb(220, 53, 69), Color.White);
 
             dlg.Controls.AddRange(new Control[] { lblContract, cmbContract, lblType, cmbType, lblDate, dtp, lblReminder, numReminder, lblNote, txtNote, btnOk, btnCancel });
             dlg.AcceptButton = btnOk;

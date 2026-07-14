@@ -101,6 +101,7 @@ namespace ContractManagementSystem_CMS_.Services
             using (var db = new SqlConnection(GetConnectionString()))
             {
                 db.Execute("DELETE FROM ContractExtractions WHERE ContractId = @Id", new { Id = contractId });
+                db.Execute("DELETE FROM ContractDates WHERE ContractId = @Id", new { Id = contractId });
                 db.Execute("DELETE FROM Contracts WHERE Id = @Id", new { Id = contractId });
             }
         }
